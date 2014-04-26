@@ -5,6 +5,22 @@
 
 using namespace Rcpp;
 
+// resolv_a
+SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_a(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_a(fqdn, nameserver);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // resolv_txt
 SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING);
 RcppExport SEXP resolv_resolv_txt(SEXP fqdnSEXP, SEXP nameserverSEXP) {
@@ -47,6 +63,22 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
         SEXP __result = resolv_cname(fqdn, nameserver);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// resolv_ptr
+SEXP resolv_ptr(SEXP fqdn, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_ptr(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_ptr(fqdn, nameserver);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

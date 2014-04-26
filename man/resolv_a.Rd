@@ -1,8 +1,8 @@
-\name{resolv_cname}
-\alias{resolv_cname}
-\title{Returns the DNS CNAME records for a given FQDN}
+\name{resolv_a}
+\alias{resolv_a}
+\title{Returns the DNS A records for a given FQDN}
 \usage{
-resolv_cname(fqdn, nameserver = NA_character_)
+resolv_a(fqdn, nameserver = NA_character_)
 }
 \arguments{
   \item{fqdn}{input character vector (FQDN)}
@@ -12,10 +12,10 @@ resolv_cname(fqdn, nameserver = NA_character_)
   specified)}
 }
 \value{
-vector of CNAME records or \code{NULL} if none
+vector of A records or \code{NULL} if none
 }
 \description{
-Returns the DNS CNAME records for a given FQDN
+Returns the DNS A records for a given FQDN
 }
 \examples{
 require(resolv)
@@ -23,13 +23,15 @@ require(resolv)
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}
 
-\url{http://www.cambus.net/interesting-dns-hacks/}
+\url{http://www.cambus.net/interesting-dns-hacks/} (cool
+DNS A hacks vla
+\url{https://twitter.com/habbie/status/460067198586081280})
 
-Other ldns: \code{\link{resolv_a}};
+Other ldns: \code{\link{resolv_cname}};
 \code{\link{resolv_mx}}; \code{\link{resolv_ptr}};
 \code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 
-Other resolv: \code{\link{resolv_a}};
+Other resolv: \code{\link{resolv_cname}};
 \code{\link{resolv_mx}}; \code{\link{resolv_ptr}};
 \code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 }

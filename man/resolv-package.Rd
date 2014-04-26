@@ -21,7 +21,9 @@ License: \tab MIT\cr
 \code{resolv_txt()} - perform TXT lookups\cr
 \code{resolv_mx()} - perform MX lookups\cr
 \code{resolv_cname()} - perform CNAME\cr
-\code{resolv_srv()} - perform SRV lookups
+\code{resolv_srv()} - perform SRV lookups\cr
+\code{resolv_a()} - perform SRV lookups\cr
+\code{resolv_ptr()} - perform SRV lookups
 }
 \author{
 boB Rudis (@hrbrmstr)

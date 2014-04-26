@@ -25,6 +25,99 @@ char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
 
 using namespace Rcpp;
 
+//' Returns the DNS A records for a given FQDN
+//'
+//' @param fqdn input character vector (FQDN)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @return vector of A records or \code{NULL} if none
+//' @family ldns
+//' @family resolv
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
+//' @export
+//' @examples
+//' require(resolv)
+//' 
+// [[Rcpp::export]]
+SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
+  
+  ldns_resolver *res = NULL;
+  ldns_rdf *domain = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *a = NULL;
+  ldns_status s;
+  
+  ldns_rr *answer;
+  ldns_rdf *rd ;
+  char *answer_str ;
+  
+  // SEXP passes in an R vector, we need this as a C++ string
+  std::string fqdns = as<std::string>(fqdn);
+
+  // we only passed in one IP address
+  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  if (!domain) { return(R_NilValue) ; }
+  
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
+    
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { return(R_NilValue) ; }
+    
+  } else {
+    
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    
+  }
+  
+  p = ldns_resolver_query(res, domain, LDNS_RR_TYPE_A, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(domain); // no longer needed
+  
+  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+
+  // get the A record(s)
+  a = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER); 
+  if (!a) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(a);
+    Rcout << "No A records" << std::endl ;
+    return(R_NilValue) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(a); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(a) ;
+  CharacterVector results(nr) ;
+  
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(a, i) ;
+    // get data
+    rd = ldns_rr_a_address(answer) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    // add to vector
+    results[i] = answer_str ;
+    // clean up
+    free(answer_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(a);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the A answer vector
+  return(results);
+    
+}
+
 //' Returns the DNS TXT records for a given FQDN
 //'
 //' @param fqdn input character vector (FQDN)
@@ -328,6 +421,116 @@ SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
   ldns_resolver_deep_free(res);
  
   // return the CNAME answer vector
+  return(results);
+    
+}
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
+//' Returns the DNS PTR records for a given FQDN
+//'
+//' @param fqdn input character vector (FQDN)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @return vector of PTR records or \code{NULL} if none
+//' @family ldns
+//' @family resolv
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+//' @export
+//' @examples
+//' require(resolv)
+//'
+// [[Rcpp::export]]
+SEXP resolv_ptr(SEXP fqdn, SEXP nameserver = NA_STRING) {
+  
+  ldns_resolver *res = NULL;
+  ldns_rdf *domain = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *ptr = NULL;
+  ldns_status s;
+  
+  ldns_rr *answer;
+  ldns_rdf *rd ;
+  char *answer_str ;
+  
+  // SEXP passes in an R vector, we need this as a C++ string
+  std::string fqdns = as<std::string>(fqdn);
+  std::vector<std::string> octets = split(fqdns, '.');
+  std::string rev = octets[3] + "." + octets[2] + "." + octets[1] + "." + octets[0] + ".in-addr.arpa." ;
+ 
+  // we only passed in one IP address
+  domain = ldns_dname_new_frm_str(rev.c_str());
+  if (!domain) { return(R_NilValue) ; }
+  
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
+    
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { return(R_NilValue) ; }
+    
+  } else {
+    
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    
+  }
+  
+  p = ldns_resolver_query(res, domain, LDNS_RR_TYPE_ANY, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(domain); // no longer needed
+  
+  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+
+  // get the PTR record(s)
+  ptr = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_PTR, LDNS_SECTION_ANSWER); 
+  if (!ptr) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(ptr);
+    Rcout << "No PTR records" << std::endl ;
+    return(R_NilValue) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(ptr); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(ptr) ;
+  CharacterVector results(nr) ;
+    
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(ptr, i) ;
+    // get data
+    rd = ldns_rr_rdf(answer, 0) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    // add to vector
+    results[i] = answer_str ;
+    // clean up
+    free(answer_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(ptr);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the PTR answer vector
   return(results);
     
 }

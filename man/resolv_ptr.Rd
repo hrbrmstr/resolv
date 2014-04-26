@@ -1,8 +1,8 @@
-\name{resolv_srv}
-\alias{resolv_srv}
-\title{Returns the DNS SRV records for a given FQDN}
+\name{resolv_ptr}
+\alias{resolv_ptr}
+\title{Returns the DNS PTR records for a given FQDN}
 \usage{
-resolv_srv(fqdn, nameserver = NA_character_)
+resolv_ptr(fqdn, nameserver = NA_character_)
 }
 \arguments{
   \item{fqdn}{input character vector (FQDN)}
@@ -12,10 +12,10 @@ resolv_srv(fqdn, nameserver = NA_character_)
   specified)}
 }
 \value{
-list of SRV records (named fields) or \code{NULL} if none
+vector of PTR records or \code{NULL} if none
 }
 \description{
-Returns the DNS SRV records for a given FQDN
+Returns the DNS PTR records for a given FQDN
 }
 \examples{
 require(resolv)
@@ -27,10 +27,10 @@ require(resolv)
 
 Other ldns: \code{\link{resolv_a}};
 \code{\link{resolv_cname}}; \code{\link{resolv_mx}};
-\code{\link{resolv_ptr}}; \code{\link{resolv_txt}}
+\code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 
 Other resolv: \code{\link{resolv_a}};
 \code{\link{resolv_cname}}; \code{\link{resolv_mx}};
-\code{\link{resolv_ptr}}; \code{\link{resolv_txt}}
+\code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 }
 

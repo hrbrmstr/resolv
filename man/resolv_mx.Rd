@@ -33,10 +33,12 @@ unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
 DNS MX hacks vla
 \url{https://twitter.com/habbie/status/460067198586081280})
 
-Other ldns: \code{\link{resolv_cname}};
+Other ldns: \code{\link{resolv_a}};
+\code{\link{resolv_cname}}; \code{\link{resolv_ptr}};
 \code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 
-Other resolv: \code{\link{resolv_cname}};
+Other resolv: \code{\link{resolv_a}};
+\code{\link{resolv_cname}}; \code{\link{resolv_ptr}};
 \code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 }
 
