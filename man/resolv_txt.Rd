@@ -46,8 +46,10 @@ resolv_txt("paypal.com")
 DNS TXT hacks vla
 \url{https://twitter.com/habbie/status/460067198586081280})
 
-Other ldns: \code{\link{resolv_mx}}
+Other ldns: \code{\link{resolv_cname}};
+\code{\link{resolv_mx}}; \code{\link{resolv_srv}}
 
-Other resolv: \code{\link{resolv_mx}}
+Other resolv: \code{\link{resolv_cname}};
+\code{\link{resolv_mx}}; \code{\link{resolv_srv}}
 }
 

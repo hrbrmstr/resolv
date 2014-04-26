@@ -40,7 +40,7 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
 #'
 #' @param domain input character vector (domain name)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-#' @return vector of MX records or \code{NULL} if none
+#' @return list of MX records (preference & exchange) or \code{NULL} if none
 #' @family ldns
 #' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
@@ -50,9 +50,45 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
 #' require(resolv)
 #' 
 #' ## get the MX record for Google
-#' resolv_mx("google.com")
+#' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
+#' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
+#' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
 #' 
 resolv_mx <- function(domain, nameserver = NA_character_) {
     .Call('resolv_resolv_mx', PACKAGE = 'resolv', domain, nameserver)
+}
+
+#' Returns the DNS CNAME records for a given FQDN
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @return vector of CNAME records or \code{NULL} if none
+#' @family ldns
+#' @family resolv
+#' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+#' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+#' @export
+#' @examples
+#' require(resolv)
+#'
+resolv_cname <- function(fqdn, nameserver = NA_character_) {
+    .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver)
+}
+
+#' Returns the DNS SRV records for a given FQDN
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @return list of SRV records (named fields) or \code{NULL} if none
+#' @family ldns
+#' @family resolv
+#' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+#' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+#' @export
+#' @examples
+#' require(resolv)
+#'
+resolv_srv <- function(fqdn, nameserver = NA_character_) {
+    .Call('resolv_resolv_srv', PACKAGE = 'resolv', fqdn, nameserver)
 }
 

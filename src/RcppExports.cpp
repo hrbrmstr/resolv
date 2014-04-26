@@ -37,3 +37,35 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// resolv_cname
+SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_cname(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_cname(fqdn, nameserver);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// resolv_srv
+SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_srv(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_srv(fqdn, nameserver);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

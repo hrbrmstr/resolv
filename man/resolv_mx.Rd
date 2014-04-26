@@ -12,7 +12,8 @@ resolv_mx(domain, nameserver = NA_character_)
   specified)}
 }
 \value{
-vector of MX records or \code{NULL} if none
+list of MX records (preference & exchange) or \code{NULL}
+if none
 }
 \description{
 Returns the DNS MX records for a given domain
@@ -21,7 +22,9 @@ Returns the DNS MX records for a given domain
 require(resolv)
 
 ## get the MX record for Google
-resolv_mx("google.com")
+unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
+[1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
+[3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}
@@ -30,8 +33,10 @@ resolv_mx("google.com")
 DNS MX hacks vla
 \url{https://twitter.com/habbie/status/460067198586081280})
 
-Other ldns: \code{\link{resolv_txt}}
+Other ldns: \code{\link{resolv_cname}};
+\code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 
-Other resolv: \code{\link{resolv_txt}}
+Other resolv: \code{\link{resolv_cname}};
+\code{\link{resolv_srv}}; \code{\link{resolv_txt}}
 }
 

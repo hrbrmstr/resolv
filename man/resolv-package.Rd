@@ -18,20 +18,22 @@ Version: \tab 0.1\cr
 Date: \tab 2014-04-26\cr
 License: \tab MIT\cr
 }
-\code{resolv_txt()} - perform TXT lookups
-\code{resolv_mx()} - perform MX lookups
+\code{resolv_txt()} - perform TXT lookups\cr
+\code{resolv_mx()} - perform MX lookups\cr
+\code{resolv_cname()} - perform CNAME\cr
+\code{resolv_srv()} - perform SRV lookups
 }
 \author{
-Bob Rudis (@hrbrmstr)
+boB Rudis (@hrbrmstr)
 
-Maintainer: Who to complain to <bob@rudis.net>
+Maintainer: boB Rudis <bob@rudis.net>
 }
 \references{
 \url{http://www.nlnetlabs.nl/projects/ldns/}
 }
 \keyword{ package }
 \seealso{
-\url{http://www.nlnetlabs.nl/projects/ldns/}
+\url{http://www.nlnetlabs.nl/projects/ldns/}\cr
 \url{http://dds.ec/blog/posts/2014/Apr/making-better-dns-txt-record-lookups-with-rcpp/}
 }
 \examples{

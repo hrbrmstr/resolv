@@ -239,6 +239,211 @@ SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
     
 }
 
+//' Returns the DNS CNAME records for a given FQDN
+//'
+//' @param fqdn input character vector (FQDN)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @return vector of CNAME records or \code{NULL} if none
+//' @family ldns
+//' @family resolv
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+//' @export
+//' @examples
+//' require(resolv)
+//'
+// [[Rcpp::export]]
+SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
+  
+  ldns_resolver *res = NULL;
+  ldns_rdf *domain = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *cname = NULL;
+  ldns_status s;
+  
+  ldns_rr *answer;
+  ldns_rdf *rd ;
+  char *answer_str ;
+  
+  // SEXP passes in an R vector, we need this as a C++ string
+  std::string fqdns = as<std::string>(fqdn);
+
+  // we only passed in one IP address
+  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  if (!domain) { return(R_NilValue) ; }
+  
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
+    
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { return(R_NilValue) ; }
+    
+  } else {
+    
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    
+  }
+  
+  p = ldns_resolver_query(res, domain, LDNS_RR_TYPE_CNAME, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(domain); // no longer needed
+  
+  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+
+  // get the CNAME record(s)
+  cname = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_CNAME, LDNS_SECTION_ANSWER); 
+  if (!cname) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(cname);
+    Rcout << "No CNAME records" << std::endl ;
+    return(R_NilValue) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(cname); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(cname) ;
+  CharacterVector results(nr) ;
+    
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(cname, i) ;
+    // get data
+    rd = ldns_rr_rdf(answer, 0) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    // add to vector
+    results[i] = answer_str ;
+    // clean up
+    free(answer_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(cname);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the CNAME answer vector
+  return(results);
+    
+}
+
+//' Returns the DNS SRV records for a given FQDN
+//'
+//' @param fqdn input character vector (FQDN)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @return list of SRV records (named fields) or \code{NULL} if none
+//' @family ldns
+//' @family resolv
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+//' @export
+//' @examples
+//' require(resolv)
+//'
+// [[Rcpp::export]]
+SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
+  
+  ldns_resolver *res = NULL;
+  ldns_rdf *domain = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *srv = NULL;
+  ldns_status s;
+  
+  ldns_rr *answer;
+  ldns_rdf *rd ;
+  ldns_rdf *weight ;
+  ldns_rdf *port ;
+  ldns_rdf *target ;
+  char *answer_str ;
+  char *weight_str ;
+  char *port_str ;
+  char *target_str ;
+  
+  // SEXP passes in an R vector, we need this as a C++ string
+  std::string fqdns = as<std::string>(fqdn);
+
+  // we only passed in one IP address
+  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  if (!domain) { return(R_NilValue) ; }
+  
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
+    
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { return(R_NilValue) ; }
+    
+  } else {
+    
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    
+  }
+  
+  p = ldns_resolver_query(res, domain, LDNS_RR_TYPE_ANY, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(domain); // no longer needed
+  
+  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+
+  // get the SRV record(s)
+  srv = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_SRV, LDNS_SECTION_ANSWER); 
+  if (!srv) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(srv);
+    Rcout << "No SRV records" << std::endl ;
+    return(R_NilValue) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(srv); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(srv) ;
+  List results(nr) ;
+    
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(srv, i) ;
+    // get data
+    rd = ldns_rr_rdf(answer, 0) ;
+    weight = ldns_rr_rdf(answer, 1) ;
+    port = ldns_rr_rdf(answer, 2) ;
+    target = ldns_rr_rdf(answer, 3) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    weight_str = ldns_rdf2str(weight) ;
+    port_str = ldns_rdf2str(port) ;
+    target_str = ldns_rdf2str(target) ;
+    
+    // add to vector
+    results[i] = List::create(Named("priority") = CharacterVector::create(answer_str),
+                              Named("weight") = CharacterVector::create(weight_str),
+                              Named("port") = CharacterVector::create(port_str),
+                              Named("target") = CharacterVector::create(target_str)) ;
+    // clean up
+    free(answer_str) ;
+    free(weight_str) ;
+    free(port_str) ;
+    free(target_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(srv);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the SRV answer vector
+  return(results);
+    
+}
+
 ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname) {
   
   struct addrinfo hints, *ailist;
