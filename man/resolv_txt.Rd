@@ -1,6 +1,6 @@
 \name{resolv_txt}
 \alias{resolv_txt}
-\title{Returns the DNS TXT records for a FQDN}
+\title{Returns the DNS TXT records for a given FQDN}
 \usage{
 resolv_txt(fqdn, nameserver = NA_character_)
 }
@@ -15,7 +15,7 @@ resolv_txt(fqdn, nameserver = NA_character_)
 vector of TXT records or \code{NULL} if none
 }
 \description{
-Returns the DNS TXT records for a FQDN
+Returns the DNS TXT records for a given FQDN
 }
 \examples{
 require(resolv)

@@ -25,7 +25,7 @@ char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
 
 using namespace Rcpp;
 
-//' Returns the DNS TXT records for a FQDN
+//' Returns the DNS TXT records for a given FQDN
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
