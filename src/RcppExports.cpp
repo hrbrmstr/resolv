@@ -6,14 +6,15 @@
 using namespace Rcpp;
 
 // resolv_txt
-SEXP resolv_txt(SEXP fqdn);
-RcppExport SEXP resolv_resolv_txt(SEXP fqdnSEXP) {
+SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_txt(SEXP fqdnSEXP, SEXP nameserverSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< SEXP >::type fqdn(fqdnSEXP );
-        SEXP __result = resolv_txt(fqdn);
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_txt(fqdn, nameserver);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

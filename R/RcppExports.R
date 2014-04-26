@@ -4,7 +4,12 @@
 #' Returns the DNS TXT records for a FQDN
 #'
 #' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of TXT records or \code{NULL} if none
+#' @family ldns
+#' @family resolv
+#' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+#' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
 #' @examples
 #' require(resolv)
@@ -13,13 +18,21 @@
 #' resolv_txt("google.com")
 #' [1] "\"v=spf1 include:_spf.google.com ip4:216.73.93.70/31 ip4:216.73.93.72/31 ~all\""
 #' 
+#' ## Use Team CYMRU ASN TXT record lookup service
+#' resolv_txt("31.108.90.216.origin.asn.cymru.com")
+#' [1] "\"23028 | 216.90.108.0/24 | US | arin |\""
+#'
+#' ## Wikipedia lookups:
+#' resolv_txt("bind.wp.dg.cx")
+#' [1] "\"BIND , or named , is the most widely used DNS software on the Internet. On Unix-like operating systems it is the de facto standard. http://en.wikipedia.org/wiki/BIND\""
+#'
 #' ## get the TXT records for PayPal
 #' resolv_txt("paypal.com")
 #' [1] "\"MS=ms96239109\""                                                                                                                                                                                        
 #' [2] "\"yandex-verification: 73acb90f6a9abd76\""                                                                                                                                                                
 #' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 #' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
-resolv_txt <- function(fqdn) {
-    .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn)
+resolv_txt <- function(fqdn, nameserver = NA_character_) {
+    .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn, nameserver)
 }
 
