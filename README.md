@@ -9,11 +9,11 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
 
 ### Details
 
-    Package:	 resolv
-    Type:	 Package
-    Version:	 0.1
-    Date:	 2014-04-26
-    License:	 MIT
+    Package: resolv
+    Type:    Package
+    Version: 0.1
+    Date:    2014-04-26
+    License: MIT
 
 
 - `resolv_txt()` - perform TXT lookups
