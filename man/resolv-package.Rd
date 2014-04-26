@@ -18,7 +18,8 @@ Version: \tab 0.1\cr
 Date: \tab 2014-04-26\cr
 License: \tab MIT\cr
 }
-\code{resolv_txt} - perform TXT lookups
+\code{resolv_txt()} - perform TXT lookups
+\code{resolv_mx()} - perform MX lookups
 }
 \author{
 Bob Rudis (@hrbrmstr)
