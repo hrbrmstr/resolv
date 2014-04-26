@@ -21,3 +21,19 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// resolv_mx
+SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING);
+RcppExport SEXP resolv_resolv_mx(SEXP domainSEXP, SEXP nameserverSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type domain(domainSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
+        SEXP __result = resolv_mx(domain, nameserver);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

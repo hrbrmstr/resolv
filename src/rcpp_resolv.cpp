@@ -136,40 +136,107 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
     
 }
 
-ldns_resolver *setresolver(const char *ns) {
+//' Returns the DNS MX records for a given domain
+//'
+//' @param domain input character vector (domain name)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @return list of MX records (preference & exchange) or \code{NULL} if none
+//' @family ldns
+//' @family resolv
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
+//' @export
+//' @examples
+//' require(resolv)
+//' 
+//' ## get the MX record for Google
+//' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
+//' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
+//' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
+//' 
+// [[Rcpp::export]]
+SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
   
-  ldns_resolver *res = NULL ;
+  ldns_resolver *res = NULL;
+  ldns_rdf *dname = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *mx = NULL;
+  ldns_status s;
   
-  res = ldns_resolver_new();
+  ldns_rr *answer;
+  ldns_rdf *rd, *pref ;
+  char *answer_str, *pref_str ;
   
-  ldns_rdf *addr = NULL;
-  if ((addr = ldns_rdf_new_frm_str(LDNS_RDF_TYPE_A, ns)) == NULL) {
-    addr = ldns_rdf_new_frm_str(LDNS_RDF_TYPE_AAAA, ns);
-  }
+  // SEXP passes in an R vector, we need this as a C++ string
+  std::string domains = as<std::string>(domain);
+
+  // we only passed in one IP address
+  dname = ldns_dname_new_frm_str(domains.c_str());
+  if (!dname) { return(R_NilValue) ; }
   
-  if (addr) {
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
     
-    if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
-      Rcout << "couldn't find nameserver address" << std::endl ;
-      return(NULL);
-    }
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { return(R_NilValue) ; }
     
   } else {
     
-    addr = nshosttoaddr(res, ns) ;
-    if (addr) {
-      if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
-        Rcout << "couldn't find nameserver address" << std::endl ;
-        return(NULL);
-      }
-    } else {
-      Rcout << "couldn't find nameserver address" << std::endl ;
-      return(NULL) ;
-    }
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    
   }
   
-  return(res);
+  p = ldns_resolver_query(res, dname, LDNS_RR_TYPE_MX, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(dname); // no longer needed
   
+  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+
+  // get the MX record(s)
+  mx = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER); 
+  if (!mx) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(mx);
+    Rcout << "No MX records" << std::endl ;
+    return(R_NilValue) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(mx); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(mx) ;
+  List results(nr) ;
+  
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(mx, i) ;
+    // get data
+    rd = ldns_rr_mx_exchange(answer) ;
+    pref = ldns_rr_mx_preference (answer) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    pref_str = ldns_rdf2str(pref) ;
+    
+    // add to list
+    results[i] = List::create(Named("preference") = CharacterVector::create(pref_str),
+                              Named("exchange") = CharacterVector::create(answer_str)) ;
+    // clean up
+    free(answer_str) ;
+    free(pref_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(mx);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the MX answer vector
+  return(results);
+    
 }
 
 ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname) {
@@ -203,6 +270,43 @@ ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname) {
   } else {
     return(NULL) ;    
   }
+  
+}
+
+
+ldns_resolver *setresolver(const char *ns) {
+  
+  ldns_resolver *res = NULL ;
+  
+  res = ldns_resolver_new();
+  
+  ldns_rdf *addr = NULL;
+  if ((addr = ldns_rdf_new_frm_str(LDNS_RDF_TYPE_A, ns)) == NULL) {
+    addr = ldns_rdf_new_frm_str(LDNS_RDF_TYPE_AAAA, ns);
+  }
+  
+  if (addr) {
+    
+    if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
+      Rcout << "couldn't find nameserver address" << std::endl ;
+      return(NULL);
+    }
+    
+  } else {
+    
+    addr = nshosttoaddr(res, ns) ;
+    if (addr) {
+      if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
+        Rcout << "couldn't find nameserver address" << std::endl ;
+        return(NULL);
+      }
+    } else {
+      Rcout << "couldn't find nameserver address" << std::endl ;
+      return(NULL) ;
+    }
+  }
+  
+  return(res);
   
 }
 

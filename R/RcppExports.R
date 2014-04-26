@@ -36,3 +36,23 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
     .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn, nameserver)
 }
 
+#' Returns the DNS MX records for a given domain
+#'
+#' @param domain input character vector (domain name)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @return vector of MX records or \code{NULL} if none
+#' @family ldns
+#' @family resolv
+#' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+#' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
+#' @export
+#' @examples
+#' require(resolv)
+#' 
+#' ## get the MX record for Google
+#' resolv_mx("google.com")
+#' 
+resolv_mx <- function(domain, nameserver = NA_character_) {
+    .Call('resolv_resolv_mx', PACKAGE = 'resolv', domain, nameserver)
+}
+
