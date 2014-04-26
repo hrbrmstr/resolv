@@ -92,9 +92,9 @@ resolv_cname <- function(fqdn, nameserver = NA_character_) {
     .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver)
 }
 
-#' Returns the DNS PTR records for a given FQDN
+#' Returns the DNS PTR records for a given IP address
 #'
-#' @param fqdn input character vector (FQDN)
+#' @param IP address input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of PTR records or \code{NULL} if none
 #' @family ldns
@@ -105,8 +105,8 @@ resolv_cname <- function(fqdn, nameserver = NA_character_) {
 #' @examples
 #' require(resolv)
 #'
-resolv_ptr <- function(fqdn, nameserver = NA_character_) {
-    .Call('resolv_resolv_ptr', PACKAGE = 'resolv', fqdn, nameserver)
+resolv_ptr <- function(ip, nameserver = NA_character_) {
+    .Call('resolv_resolv_ptr', PACKAGE = 'resolv', ip, nameserver)
 }
 
 #' Returns the DNS SRV records for a given FQDN

@@ -425,11 +425,14 @@ SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
     
 }
 
+// helper functions to split a string
+// via http://stackoverflow.com/a/236803/1457051
+
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
     std::string item;
     while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
+      elems.push_back(item);
     }
     return elems;
 }
@@ -440,9 +443,9 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-//' Returns the DNS PTR records for a given FQDN
+//' Returns the DNS PTR records for a given IP address
 //'
-//' @param fqdn input character vector (FQDN)
+//' @param IP address input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return vector of PTR records or \code{NULL} if none
 //' @family ldns
@@ -454,7 +457,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' require(resolv)
 //'
 // [[Rcpp::export]]
-SEXP resolv_ptr(SEXP fqdn, SEXP nameserver = NA_STRING) {
+SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -467,8 +470,8 @@ SEXP resolv_ptr(SEXP fqdn, SEXP nameserver = NA_STRING) {
   char *answer_str ;
   
   // SEXP passes in an R vector, we need this as a C++ string
-  std::string fqdns = as<std::string>(fqdn);
-  std::vector<std::string> octets = split(fqdns, '.');
+  std::string ips = as<std::string>(ip);
+  std::vector<std::string> octets = split(ips, '.');
   std::string rev = octets[3] + "." + octets[2] + "." + octets[1] + "." + octets[0] + ".in-addr.arpa." ;
  
   // we only passed in one IP address

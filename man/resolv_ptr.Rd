@@ -1,11 +1,11 @@
 \name{resolv_ptr}
 \alias{resolv_ptr}
-\title{Returns the DNS PTR records for a given FQDN}
+\title{Returns the DNS PTR records for a given IP address}
 \usage{
-resolv_ptr(fqdn, nameserver = NA_character_)
+resolv_ptr(ip, nameserver = NA_character_)
 }
 \arguments{
-  \item{fqdn}{input character vector (FQDN)}
+  \item{IP}{address input character vector (FQDN)}
 
   \item{nameserver}{the nameserver to send the request to
   (optional; uses standard resolver behavior if not
@@ -15,7 +15,7 @@ resolv_ptr(fqdn, nameserver = NA_character_)
 vector of PTR records or \code{NULL} if none
 }
 \description{
-Returns the DNS PTR records for a given FQDN
+Returns the DNS PTR records for a given IP address
 }
 \examples{
 require(resolv)
