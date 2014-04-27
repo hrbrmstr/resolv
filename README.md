@@ -27,7 +27,7 @@ Direct `ldns` wrappers:
 - `resolv_cname()` - perform CNAME lookups
 - `resolv_srv()` - perform SRV lookups (returns list)
 - `resolv_a()` - perform A lookups
-- `resolv_ptr()` - perform SRV lookups
+- `resolv_ptr()` - perform PTR lookups
 
 Ancillary/"fun"ctions
 
@@ -35,6 +35,28 @@ Ancillary/"fun"ctions
 - `asninfo()` - interface to http://www.team-cymru.org/Services/ip-to-asn.html#dns
 - `wikidns()` - interface to https://dgl.cx/wikipedia-dns
 - `dnscalc()` - interface to http://www.isi.edu/touch/tools/dns-calc.html
+
+### Examples
+
+    require(resolv)
+    library(plyr)
+
+    ## google talk provides a good example for this
+    ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
+    priority weight port                         target
+    1        5      0 5269      xmpp-server.l.google.com.
+    2       20      0 5269 alt1.xmpp-server.l.google.com.
+    3       20      0 5269 alt2.xmpp-server.l.google.com.
+    4       20      0 5269 alt3.xmpp-server.l.google.com.
+    5       20      0 5269 alt4.xmpp-server.l.google.com.
+
+    # where www.nasa.gov hosts
+    resolv_a("www.nasa.gov")
+    [1] "69.28.187.45"    "208.111.161.110"
+
+    resolv_ptr("69.28.187.45")
+    [1] "cds355.iad.llnw.net."
+
 
 ### Author(s)
 
