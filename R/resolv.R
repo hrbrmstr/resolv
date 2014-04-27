@@ -10,7 +10,7 @@ ip2asn <- function(ip="216.90.108.31") {
   
   ip <- paste(paste(rev(unlist(strsplit(ip, "\\."))), sep="", collapse="."), 
               ".origin.asn.cymru.com", sep="", collapse="")
-  result <- resolv_txt(as.character(ip))
+  result <- resolv_txt(ip)
   out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
   
   return(list(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
@@ -30,7 +30,7 @@ asninfo <- function(asn="AS23028") {
   # prefix with "AS" in case it isn't
   asn <- gsub("^([0-9]+)", "AS\\1", asn)
   asn <- paste(asn, ".asn.cymru.com", sep="", collapse="")
-  result <- resolv_txt(as.character(asn))
+  result <- resolv_txt(asn)
   out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
   
   return(list(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
