@@ -36,6 +36,6 @@ asninfo <- function(asn="AS23028") {
   
   out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
   
-  return(list(asn=out[1], cn=out[1], registry=out[2], regdate=out[3], locaton=out[4]))
+  return(list(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
   
 }
