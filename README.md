@@ -3,6 +3,9 @@ resolv
 
 ldns DNS resolver wrapper libary for R
 
+    library(devtools)
+    install_github("hrbrmstr/resolv")
+
 ### Description
 
 Provides functions to perform robust DNS lookups from R. Uses the `ldns` library which provides support for IPv4 & IPv6 addresses as well as DNSSEC.
