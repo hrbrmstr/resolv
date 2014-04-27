@@ -3,6 +3,8 @@ resolv
 
 ldns DNS resolver wrapper libary for R
 
+Needs `ldns` - http://www.nlnetlabs.nl/projects/ldns/ - which is `apt`-able and `brew`-able.
+
     library(devtools)
     install_github("hrbrmstr/resolv")
 
