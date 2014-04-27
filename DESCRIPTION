@@ -1,11 +1,11 @@
 Package: resolv
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Wrapper to ldns library for DNS calls from R
+Version: 0.1
 Date: 2014-04-26
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What Licence is it under ?
+Author: Bob Rudis (@hrbrmstr)
+Maintainer: Bob Rudids <bob@rudis.net>
+Description: Wrapper to ldns library for DNS calls from R
+License: MIT
 Imports: Rcpp (>= 0.11.1)
 LinkingTo: Rcpp
