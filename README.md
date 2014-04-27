@@ -22,10 +22,10 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
 
 
 - `resolv_txt()` - perform TXT lookups
-- `resolv_mx()` - perform MX lookups
-- `resolv_cname()` - perform CNAME
-- `resolv_srv()` - perform SRV lookups
-- `resolv_a()` - perform SRV lookups
+- `resolv_mx()` - perform MX lookups (returns list)
+- `resolv_cname()` - perform CNAME lookups
+- `resolv_srv()` - perform SRV lookups (returns list)
+- `resolv_a()` - perform A lookups
 - `resolv_ptr()` - perform SRV lookups
 
 ### Author(s)
