@@ -8,7 +8,7 @@ ldns DNS resolver wrapper libary for R
 
 ### Description
 
-Provides functions to perform robust DNS lookups from R. Uses the `ldns` library which provides support for IPv4 & IPv6 addresses as well as DNSSEC.
+Provides functions to perform robust DNS lookups from R. Uses the `ldns` library which provides support for IPv4 & IPv6 addresses as well as DNSSEC. This library currently exposes the functions indicated below.
 
 ### Details
 
