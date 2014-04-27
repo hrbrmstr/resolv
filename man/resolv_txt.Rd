@@ -50,8 +50,10 @@ Other ldns: \code{\link{resolv_a}};
 \code{\link{resolv_cname}}; \code{\link{resolv_mx}};
 \code{\link{resolv_ptr}}; \code{\link{resolv_srv}}
 
-Other resolv: \code{\link{resolv_a}};
+Other resolv: \code{\link{asninfo}}; \code{\link{dnscalc}};
+\code{\link{ip2asn}}; \code{\link{resolv_a}};
 \code{\link{resolv_cname}}; \code{\link{resolv_mx}};
-\code{\link{resolv_ptr}}; \code{\link{resolv_srv}}
+\code{\link{resolv_ptr}}; \code{\link{resolv_srv}};
+\code{\link{wikidns}}
 }
 

@@ -23,7 +23,12 @@ License: \tab MIT\cr
 \code{resolv_cname()} - perform CNAME\cr
 \code{resolv_srv()} - perform SRV lookups\cr
 \code{resolv_a()} - perform SRV lookups\cr
-\code{resolv_ptr()} - perform SRV lookups
+\code{resolv_ptr()} - perform SRV lookups\cr
+
+\code{ip2asn()} - interface to http://www.team-cymru.org/Services/ip-to-asn.html#dns\cr
+\code{asninfo()} - interface to http://www.team-cymru.org/Services/ip-to-asn.html#dns\cr
+\code{wikidns()} - interface to https://dgl.cx/wikipedia-dns\cr
+\code{dnscalc()} - interface to http://www.isi.edu/touch/tools/dns-calc.html\cr
 }
 \author{
 boB Rudis (@hrbrmstr)

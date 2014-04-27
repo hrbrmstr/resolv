@@ -20,6 +20,7 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Date:    2014-04-26
     License: MIT
 
+Direct `ldns` wrappers:
 
 - `resolv_txt()` - perform TXT lookups
 - `resolv_mx()` - perform MX lookups (returns list)
@@ -28,11 +29,16 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
 - `resolv_a()` - perform A lookups
 - `resolv_ptr()` - perform SRV lookups
 
+Ancillary/"fun"ctions
+
+- `ip2asn()` - interface to http://www.team-cymru.org/Services/ip-to-asn.html#dns
+- `asninfo()` - interface to http://www.team-cymru.org/Services/ip-to-asn.html#dns
+- `wikidns()` - interface to https://dgl.cx/wikipedia-dns
+- `dnscalc()` - interface to http://www.isi.edu/touch/tools/dns-calc.html
+
 ### Author(s)
 
-   boB Rudis (@hrbrmstr)
-
-   Maintainer: boB Rudis <bob@rudis.net>
+   boB Rudis (@hrbrmstr) <bob@rudis.net>
 
 ### References
 

@@ -738,7 +738,7 @@ char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
     strncpy(s, "Unknown AF", maxlen);
     return NULL;
   }  
-  Rcout << s << std::endl ;
+
   return s;
   
 }
