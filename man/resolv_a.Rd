@@ -19,6 +19,20 @@ Returns the DNS A records for a given FQDN
 }
 \examples{
 require(resolv)
+
+## single address return
+resolv_a("etsy.com")
+[1] "38.106.64.123"
+
+## multiple address returns
+resolv_a("google.com")
+[1] "173.194.43.0"  "173.194.43.1"  "173.194.43.2"  "173.194.43.3"
+[5] "173.194.43.4"  "173.194.43.5"  "173.194.43.6"  "173.194.43.7"
+[9] "173.194.43.8"  "173.194.43.9"  "173.194.43.14"
+
+## must put at least one DNS hack in
+resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
+[1] "0.25.0.0"
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

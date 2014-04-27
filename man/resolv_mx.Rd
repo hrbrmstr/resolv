@@ -21,7 +21,11 @@ Returns the DNS MX records for a given domain
 \examples{
 require(resolv)
 
-## get the MX record for Google
+unlist(resolv_mx("securitymetrics.org"))
+           preference               exchange
+                  "0" "securitymetrics.org."
+
+## get the MX records for Google
 unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
 [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
 [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."

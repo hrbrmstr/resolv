@@ -19,6 +19,16 @@ Returns the DNS SRV records for a given FQDN
 }
 \examples{
 require(resolv)
+library(plyr)
+
+## google talk provides a good example for this
+ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
+ priority weight port                         target
+1        5      0 5269      xmpp-server.l.google.com.
+2       20      0 5269 alt1.xmpp-server.l.google.com.
+3       20      0 5269 alt2.xmpp-server.l.google.com.
+4       20      0 5269 alt3.xmpp-server.l.google.com.
+5       20      0 5269 alt4.xmpp-server.l.google.com.
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

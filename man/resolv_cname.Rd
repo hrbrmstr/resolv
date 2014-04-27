@@ -19,6 +19,9 @@ Returns the DNS CNAME records for a given FQDN
 }
 \examples{
 require(resolv)
+
+resolv_cname("www.paypal.com")
+[1] "www.paypal.com.akadns.net."
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

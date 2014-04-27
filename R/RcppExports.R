@@ -14,6 +14,19 @@
 #' @examples
 #' require(resolv)
 #' 
+#' ## single address return
+#' resolv_a("etsy.com")
+#' [1] "38.106.64.123"
+#' 
+#' ## multiple address returns
+#' resolv_a("google.com")
+#' [1] "173.194.43.0"  "173.194.43.1"  "173.194.43.2"  "173.194.43.3" 
+#' [5] "173.194.43.4"  "173.194.43.5"  "173.194.43.6"  "173.194.43.7" 
+#' [9] "173.194.43.8"  "173.194.43.9"  "173.194.43.14"
+#' 
+#' ## must put at least one DNS hack in
+#' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
+#' [1] "0.25.0.0"
 resolv_a <- function(fqdn, nameserver = NA_character_) {
     .Call('resolv_resolv_a', PACKAGE = 'resolv', fqdn, nameserver)
 }
@@ -66,7 +79,11 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
 #' @examples
 #' require(resolv)
 #' 
-#' ## get the MX record for Google
+#' unlist(resolv_mx("securitymetrics.org"))
+#'            preference               exchange 
+#'                   "0" "securitymetrics.org." 
+#'
+#' ## get the MX records for Google
 #' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
 #' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
 #' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
@@ -88,6 +105,8 @@ resolv_mx <- function(domain, nameserver = NA_character_) {
 #' @examples
 #' require(resolv)
 #'
+#' resolv_cname("www.paypal.com")
+#' [1] "www.paypal.com.akadns.net."
 resolv_cname <- function(fqdn, nameserver = NA_character_) {
     .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver)
 }
@@ -105,6 +124,24 @@ resolv_cname <- function(fqdn, nameserver = NA_character_) {
 #' @examples
 #' require(resolv)
 #'
+#' # where www.nasa.gov hosts
+#' resolv_a("www.nasa.gov")
+#' [1] "69.28.187.45"    "208.111.161.110"
+#' 
+#' resolv_ptr("69.28.187.45")
+#' [1] "cds355.iad.llnw.net."
+#' 
+#' ## big one - truncated output
+#' resolv_ptr("17.149.160.49")
+#'   [1] "asto.re."                   "next.com."                 
+#'   [3] "qtml.com."                  "qttv.net."                 
+#'   [5] "apple.com."                 "apple.info."               
+#'   [7] "ikids.com."                 "qt-tv.net."                
+#'   [9] "carbon.com."                "eworld.com."
+#' ...  
+#' [131] "quicktimestreaming.net."    "publishing-research.com."  
+#' [133] "publishing-research.org."   "applefinalcutproworld.com."
+#' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 resolv_ptr <- function(ip, nameserver = NA_character_) {
     .Call('resolv_resolv_ptr', PACKAGE = 'resolv', ip, nameserver)
 }
@@ -121,7 +158,16 @@ resolv_ptr <- function(ip, nameserver = NA_character_) {
 #' @export
 #' @examples
 #' require(resolv)
-#'
+#' library(plyr)
+#' 
+#' ## google talk provides a good example for this
+#' ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
+#'  priority weight port                         target
+#'1        5      0 5269      xmpp-server.l.google.com.
+#'2       20      0 5269 alt1.xmpp-server.l.google.com.
+#'3       20      0 5269 alt2.xmpp-server.l.google.com.
+#'4       20      0 5269 alt3.xmpp-server.l.google.com.
+#'5       20      0 5269 alt4.xmpp-server.l.google.com.
 resolv_srv <- function(fqdn, nameserver = NA_character_) {
     .Call('resolv_resolv_srv', PACKAGE = 'resolv', fqdn, nameserver)
 }

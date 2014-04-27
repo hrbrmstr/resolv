@@ -1,4 +1,3 @@
- 
 #include <Rcpp.h>
 #include <Rinternals.h>
 #include <Rdefines.h>
@@ -19,11 +18,15 @@
 // REF: http://www.nlnetlabs.nl/projects/ldns/ for API info
 #include <ldns/ldns.h>
 
+// TODO: make a header file
 ldns_resolver *setresolver(const char *ns);
 ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname);
 char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
 
 using namespace Rcpp;
+
+// TODO: functions for more record types
+// TODO: make a "dig"-like function that returns ALL THE THINGS
 
 //' Returns the DNS A records for a given FQDN
 //'
@@ -38,6 +41,19 @@ using namespace Rcpp;
 //' @examples
 //' require(resolv)
 //' 
+//' ## single address return
+//' resolv_a("etsy.com")
+//' [1] "38.106.64.123"
+//' 
+//' ## multiple address returns
+//' resolv_a("google.com")
+//' [1] "173.194.43.0"  "173.194.43.1"  "173.194.43.2"  "173.194.43.3" 
+//' [5] "173.194.43.4"  "173.194.43.5"  "173.194.43.6"  "173.194.43.7" 
+//' [9] "173.194.43.8"  "173.194.43.9"  "173.194.43.14"
+//' 
+//' ## must put at least one DNS hack in
+//' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
+//' [1] "0.25.0.0"
 // [[Rcpp::export]]
 SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
   
@@ -242,7 +258,11 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
 //' @examples
 //' require(resolv)
 //' 
-//' ## get the MX record for Google
+//' unlist(resolv_mx("securitymetrics.org"))
+//'            preference               exchange 
+//'                   "0" "securitymetrics.org." 
+//'
+//' ## get the MX records for Google
 //' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
 //' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
 //' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
@@ -345,6 +365,8 @@ SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
 //' @examples
 //' require(resolv)
 //'
+//' resolv_cname("www.paypal.com")
+//' [1] "www.paypal.com.akadns.net."
 // [[Rcpp::export]]
 SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
   
@@ -456,6 +478,24 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' @examples
 //' require(resolv)
 //'
+//' # where www.nasa.gov hosts
+//' resolv_a("www.nasa.gov")
+//' [1] "69.28.187.45"    "208.111.161.110"
+//' 
+//' resolv_ptr("69.28.187.45")
+//' [1] "cds355.iad.llnw.net."
+//' 
+//' ## big one - truncated output
+//' resolv_ptr("17.149.160.49")
+//'   [1] "asto.re."                   "next.com."                 
+//'   [3] "qtml.com."                  "qttv.net."                 
+//'   [5] "apple.com."                 "apple.info."               
+//'   [7] "ikids.com."                 "qt-tv.net."                
+//'   [9] "carbon.com."                "eworld.com."
+//' ...  
+//' [131] "quicktimestreaming.net."    "publishing-research.com."  
+//' [133] "publishing-research.org."   "applefinalcutproworld.com."
+//' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 // [[Rcpp::export]]
 SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
   
@@ -550,7 +590,16 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
 //' @export
 //' @examples
 //' require(resolv)
-//'
+//' library(plyr)
+//' 
+//' ## google talk provides a good example for this
+//' ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
+//'  priority weight port                         target
+//'1        5      0 5269      xmpp-server.l.google.com.
+//'2       20      0 5269 alt1.xmpp-server.l.google.com.
+//'3       20      0 5269 alt2.xmpp-server.l.google.com.
+//'4       20      0 5269 alt3.xmpp-server.l.google.com.
+//'5       20      0 5269 alt4.xmpp-server.l.google.com.
 // [[Rcpp::export]]
 SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
   
@@ -650,6 +699,18 @@ SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
     
 }
 
+// host/IP \code{ldns_rdf} populated address
+// 
+// nshosttoaddr
+// Ionically, a helper function to lookup an IP address for a hostname
+// specifically when a \code{nameserver} parameter is specified
+// in the exported functions and it's a FQDN vs an IP address.
+// We pass in a \code{ldns_resolver} \code{res} structure so
+// we can see if there's IPv6 support needed.
+// 
+// res an initialized \code{ldns_resolver} structure
+// hostname FQDN we want to lookup
+// \code{ldns_rdf} structure with the resolver set
 ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname) {
   
   struct addrinfo hints, *ailist;
@@ -684,7 +745,14 @@ ldns_rdf *nshosttoaddr(ldns_resolver *res, const char *hostname) {
   
 }
 
-
+// Create and populate \code{ldns} resolver
+// 
+// helper function to dset the resolver field since
+// we need to do some extra work if not using the sytem
+// defaults and actually specify a resolver to use
+//
+// ns the resolver FQDN or IP
+// \code{ldns_resolver} structure
 ldns_resolver *setresolver(const char *ns) {
   
   ldns_resolver *res = NULL ;
@@ -721,6 +789,13 @@ ldns_resolver *setresolver(const char *ns) {
   
 }
 
+// IP address (binary) to string
+// 
+// helper function to turn an \code{sin[6]_addr} address into a string (IPv4 or IPv6)
+// 
+// sa \code{sockaddr} structure
+// s pre-initialized buffer space for the string
+// maxlen max size of \code{s}
 char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
   
   switch(sa->sa_family) {

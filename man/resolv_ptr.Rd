@@ -19,6 +19,25 @@ Returns the DNS PTR records for a given IP address
 }
 \examples{
 require(resolv)
+
+# where www.nasa.gov hosts
+resolv_a("www.nasa.gov")
+[1] "69.28.187.45"    "208.111.161.110"
+
+resolv_ptr("69.28.187.45")
+[1] "cds355.iad.llnw.net."
+
+## big one - truncated output
+resolv_ptr("17.149.160.49")
+  [1] "asto.re."                   "next.com."
+  [3] "qtml.com."                  "qttv.net."
+  [5] "apple.com."                 "apple.info."
+  [7] "ikids.com."                 "qt-tv.net."
+  [9] "carbon.com."                "eworld.com."
+...
+[131] "quicktimestreaming.net."    "publishing-research.com."
+[133] "publishing-research.org."   "applefinalcutproworld.com."
+[135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}
