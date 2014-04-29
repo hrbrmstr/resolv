@@ -7,6 +7,8 @@ Needs `ldns` - http://www.nlnetlabs.nl/projects/ldns/ - which is `apt`-able and 
 
     library(devtools)
     install_github("hrbrmstr/resolv")
+    
+[These folks](http://dev.telnic.org/trac/wiki/DotTelUtils) seem to have done some work getting the `ldns` library to work under Windows, but this particular package only works (for now on Linux/Mac OS X.
 
 ### Description
 
