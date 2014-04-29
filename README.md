@@ -24,7 +24,7 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Version:     0.1
     Date:        2014-04-26
     Author:      Bob Rudis (@hrbrmstr)
-    Maintainer:  Bob Rudids <bob@rudis.net>
+    Maintainer:  Bob Rudis <bob@rudis.net>
     Description: Wrapper to ldns library for DNS calls from R
     License:     MIT
     Imports:     Rcpp (>= 0.11.1)
