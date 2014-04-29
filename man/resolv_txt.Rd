@@ -32,6 +32,9 @@ resolv_txt("31.108.90.216.origin.asn.cymru.com")
 resolv_txt("bind.wp.dg.cx")
 [1] "\\"BIND , or named , is the most widely used DNS software on the Internet. On Unix-like operating systems it is the de facto standard. http://en.wikipedia.org/wiki/BIND\\""
 
+## seekrit URLs
+browseURL(gsub("\\"", "", resolv_txt("google-public-dns-a.google.com")))
+
 ## get the TXT records for PayPal
 resolv_txt("paypal.com")
 [1] "\\"MS=ms96239109\\""

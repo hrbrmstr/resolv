@@ -72,5 +72,7 @@ resolv_a("www.nasa.gov")
 resolv_ptr("69.28.187.45")
 [1] "cds355.iad.llnw.net."
 
+# seekrit URLs
+browseURL(gsub("\"", "", resolv_txt("google-public-dns-a.google.com")))
 
 }
