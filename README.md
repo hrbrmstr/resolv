@@ -10,17 +10,25 @@ Needs `ldns` - http://www.nlnetlabs.nl/projects/ldns/ - which is `apt`-able and 
     
 [These folks](http://dev.telnic.org/trac/wiki/DotTelUtils) seem to have done some work getting the `ldns` library to work under Windows, but this particular package only works (for now on Linux/Mac OS X.
 
+Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pull requests welcome/encouraged. The code/package is documented pretty well (esp for me).
+
 ### Description
 
 Provides functions to perform robust DNS lookups from R. Uses the `ldns` library which provides support for IPv4 & IPv6 addresses as well as DNSSEC. This library currently exposes the functions indicated below.
 
 ### Details
 
-    Package: resolv
-    Type:    Package
-    Version: 0.1
-    Date:    2014-04-26
-    License: MIT
+    Package:     resolv
+    Type:        Package
+    Title:       Wrapper to ldns library for DNS calls from R
+    Version:     0.1
+    Date:        2014-04-26
+    Author:      Bob Rudis (@hrbrmstr)
+    Maintainer:  Bob Rudids <bob@rudis.net>
+    Description: Wrapper to ldns library for DNS calls from R
+    License:     MIT
+    Imports:     Rcpp (>= 0.11.1)
+    LinkingTo:   Rcpp
 
 Direct `ldns` wrappers:
 
