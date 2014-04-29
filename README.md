@@ -71,7 +71,6 @@ These show off some of what you can do with DNS
     resolv_ptr("69.28.187.45")
     [1] "cds355.iad.llnw.net."
     
-    
     ## DNS seekrit TXT URLs
     browseURL(gsub("\"", "", resolv_txt("google-public-dns-a.google.com")))
 
