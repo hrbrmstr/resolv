@@ -5,7 +5,7 @@
 ip2asn(ip = "216.90.108.31")
 }
 \arguments{
-  \item{IP}{address to lookup (character vector)}
+  \item{ip}{address to lookup (character vector)}
 }
 \value{
 list containing named ASN attributes

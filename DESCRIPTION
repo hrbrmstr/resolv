@@ -7,5 +7,6 @@ Author: Bob Rudis (@hrbrmstr)
 Maintainer: Bob Rudids <bob@rudis.net>
 Description: Wrapper to ldns library for DNS calls from R
 License: MIT
-Imports: Rcpp (>= 0.11.1)
+Imports:
+    Rcpp (>= 0.11.1)
 LinkingTo: Rcpp

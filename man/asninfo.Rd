@@ -5,7 +5,7 @@
 asninfo(asn = "AS23028")
 }
 \arguments{
-  \item{ASN}{number (with or without "AS" prefixed) to
+  \item{asn}{number (with or without "AS" prefixed) to
   lookup (character vector)}
 }
 \value{

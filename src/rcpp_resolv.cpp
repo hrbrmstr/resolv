@@ -92,14 +92,14 @@ SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query") ; return(R_NilValue) ; }
 
   // get the A record(s)
   a = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER); 
   if (!a) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(a);
-    Rcout << "No A records" << std::endl ;
+    Rf_warning("No A records");
     return(R_NilValue) ;
   }
   
@@ -206,14 +206,14 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) {Rf_warning("Could not process query"); return(R_NilValue) ; }
 
   // get the TXT record(s)
   txt = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_TXT, LDNS_SECTION_ANSWER); 
   if (!txt) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(txt);
-    Rcout << "No TXT records" << std::endl ;
+    Rf_warning("No TXT records") ;
     return(R_NilValue) ;
   }
   
@@ -308,14 +308,14 @@ SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(dname); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
 
   // get the MX record(s)
   mx = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER); 
   if (!mx) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(mx);
-    Rcout << "No MX records" << std::endl ;
+    Rf_warning("No MX records") ;
     return(R_NilValue) ;
   }
   
@@ -408,14 +408,14 @@ SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query") ; return(R_NilValue) ; }
 
   // get the CNAME record(s)
   cname = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_CNAME, LDNS_SECTION_ANSWER); 
   if (!cname) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(cname);
-    Rcout << "No CNAME records" << std::endl ;
+    Rf_warning("No CNAME records") ;
     return(R_NilValue) ;
   }
   
@@ -539,14 +539,14 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
 
   // get the PTR record(s)
   ptr = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_PTR, LDNS_SECTION_ANSWER); 
   if (!ptr) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(ptr);
-    Rcout << "No PTR records" << std::endl ;
+    Rf_warning("No PTR records");
     return(R_NilValue) ;
   }
   
@@ -647,14 +647,14 @@ SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rcout << "Could not process query" << std::endl ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
 
   // get the SRV record(s)
   srv = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_SRV, LDNS_SECTION_ANSWER); 
   if (!srv) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(srv);
-    Rcout << "No SRV records" << std::endl ;
+    Rf_warning("No SRV records") ;
     return(R_NilValue) ;
   }
   
@@ -770,7 +770,7 @@ ldns_resolver *setresolver(const char *ns) {
   if (addr) {
     
     if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
-      Rcout << "couldn't find nameserver address" << std::endl ;
+      Rf_warning("couldn't find nameserver address") ;
       return(NULL);
     }
     
@@ -779,11 +779,11 @@ ldns_resolver *setresolver(const char *ns) {
     addr = nshosttoaddr(res, ns) ;
     if (addr) {
       if (ldns_resolver_push_nameserver(res, addr) != LDNS_STATUS_OK) {
-        Rcout << "couldn't find nameserver address" << std::endl ;
+        Rf_warning("couldn't find nameserver address");
         return(NULL);
       }
     } else {
-      Rcout << "couldn't find nameserver address" << std::endl ;
+      Rf_warning("couldn't find nameserver address") ;
       return(NULL) ;
     }
   }

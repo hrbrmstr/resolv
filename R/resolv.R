@@ -1,6 +1,6 @@
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
-#' @param IP address to lookup (character vector)
+#' @param ip address to lookup (character vector)
 #' @return list containing named ASN attributes
 #' @family resolv
 #' @export
@@ -19,7 +19,7 @@ ip2asn <- function(ip="216.90.108.31") {
 
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
-#' @param ASN number (with or without "AS" prefixed) to lookup (character vector)
+#' @param asn number (with or without "AS" prefixed) to lookup (character vector)
 #' @return list containing named ASN attributes
 #' @family resolv
 #' @export
