@@ -33,8 +33,6 @@ using namespace Rcpp;
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return vector of A records or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
@@ -54,8 +52,8 @@ using namespace Rcpp;
 //' ## must put at least one DNS hack in
 //' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 //' [1] "0.25.0.0"
-// [[Rcpp::export]]
-SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
+//[[Rcpp::export]]
+CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -67,11 +65,8 @@ SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
   ldns_rdf *rd ;
   char *answer_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string fqdns = as<std::string>(fqdn);
-
   // we only passed in one IP address
-  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(R_NilValue) ; }
   
   std::string ns = as<std::string>(nameserver);
@@ -139,11 +134,8 @@ SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return vector of TXT records or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
-//' @export
 //' @examples
 //' require(resolv)
 //' 
@@ -168,8 +160,8 @@ SEXP resolv_a(SEXP fqdn, SEXP nameserver = NA_STRING) {
 //' [2] "\"yandex-verification: 73acb90f6a9abd76\""                                                                                                                                                                
 //' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 //' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
-// [[Rcpp::export]]
-SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
+//[[Rcpp::export]]
+CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -181,11 +173,9 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
   ldns_rdf *rd ;
   char *answer_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string fqdns = as<std::string>(fqdn);
 
   // we only passed in one IP address
-  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(R_NilValue) ; }
   
   std::string ns = as<std::string>(nameserver);
@@ -253,11 +243,8 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
 //' @param domain input character vector (domain name)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return list of MX records (preference & exchange) or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
-//' @export
 //' @examples
 //' require(resolv)
 //' 
@@ -270,8 +257,8 @@ SEXP resolv_txt(SEXP fqdn, SEXP nameserver = NA_STRING) {
 //' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
 //' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
 //' 
-// [[Rcpp::export]]
-SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
+//[[Rcpp::export]]
+List resolv_mx(std::string domain, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *dname = NULL;
@@ -283,11 +270,8 @@ SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
   ldns_rdf *rd, *pref ;
   char *answer_str, *pref_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string domains = as<std::string>(domain);
-
   // we only passed in one IP address
-  dname = ldns_dname_new_frm_str(domains.c_str());
+  dname = ldns_dname_new_frm_str(domain.c_str());
   if (!dname) { return(R_NilValue) ; }
   
   std::string ns = as<std::string>(nameserver);
@@ -360,18 +344,15 @@ SEXP resolv_mx(SEXP domain, SEXP nameserver = NA_STRING) {
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return vector of CNAME records or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
-//' @export
 //' @examples
 //' require(resolv)
 //'
 //' resolv_cname("www.paypal.com")
 //' [1] "www.paypal.com.akadns.net."
 // [[Rcpp::export]]
-SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
+CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -383,11 +364,8 @@ SEXP resolv_cname(SEXP fqdn, SEXP nameserver = NA_STRING) {
   ldns_rdf *rd ;
   char *answer_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string fqdns = as<std::string>(fqdn);
-
   // we only passed in one IP address
-  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(R_NilValue) ; }
   
   std::string ns = as<std::string>(nameserver);
@@ -473,8 +451,6 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' @param IP address input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return vector of PTR records or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -499,7 +475,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' [131] "quicktimestreaming.net."    "publishing-research.com."  
 //' [133] "publishing-research.org."   "applefinalcutproworld.com."
 //' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
-// [[Rcpp::export]]
+//[[Rcpp::export]]
 SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
@@ -586,8 +562,6 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @return list of SRV records (named fields) or \code{NULL} if none
-//' @family ldns
-//' @family resolv
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -603,8 +577,8 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
 //'3       20      0 5269 alt2.xmpp-server.l.google.com.
 //'4       20      0 5269 alt3.xmpp-server.l.google.com.
 //'5       20      0 5269 alt4.xmpp-server.l.google.com.
-// [[Rcpp::export]]
-SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
+//[[Rcpp::export]]
+List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -622,11 +596,8 @@ SEXP resolv_srv(SEXP fqdn, SEXP nameserver = NA_STRING) {
   char *port_str ;
   char *target_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string fqdns = as<std::string>(fqdn);
-
   // we only passed in one IP address
-  domain = ldns_dname_new_frm_str(fqdns.c_str());
+  domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(R_NilValue) ; }
   
   std::string ns = as<std::string>(nameserver);

@@ -12,6 +12,10 @@ Needs `ldns` - http://www.nlnetlabs.nl/projects/ldns/ - which is `apt`-able and 
 
 Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pull requests welcome/encouraged. The code/package is documented pretty well (esp for me). Hopefully this library can replace `system` calls for folks who need to "do DNS stuff" from R.
 
+### News
+
+Version update to `0.1.1` as I modified some of the roxygen documentation to better make this work out of the box. Any help getting it to work on Windows is greatly appreciated
+
 ### Description
 
 Provides functions to perform robust DNS lookups from R. Uses the `ldns` library which provides support for IPv4 & IPv6 addresses as well as DNSSEC. This library currently exposes the functions indicated below.
@@ -21,12 +25,12 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Package:     resolv
     Type:        Package
     Title:       Wrapper to ldns library for DNS calls from R
-    Version:     0.1
-    Date:        2014-04-26
+    Version:     0.1.1
+    Date:        2014-08-12
     Author:      Bob Rudis (@hrbrmstr)
     Maintainer:  Bob Rudis <bob@rudis.net>
     Description: Wrapper to ldns library for DNS calls from R
-    License:     MIT
+    License:     GPL-2
     Imports:     Rcpp (>= 0.11.1)
     LinkingTo:   Rcpp
 

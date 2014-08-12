@@ -6,8 +6,6 @@
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of A records or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
@@ -36,11 +34,8 @@ resolv_a <- function(fqdn, nameserver = NA_character_) {
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of TXT records or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
-#' @export
 #' @examples
 #' require(resolv)
 #' 
@@ -74,11 +69,8 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
 #' @param domain input character vector (domain name)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return list of MX records (preference & exchange) or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
-#' @export
 #' @examples
 #' require(resolv)
 #' 
@@ -100,11 +92,8 @@ resolv_mx <- function(domain, nameserver = NA_character_) {
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of CNAME records or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
-#' @export
 #' @examples
 #' require(resolv)
 #'
@@ -119,8 +108,6 @@ resolv_cname <- function(fqdn, nameserver = NA_character_) {
 #' @param IP address input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return vector of PTR records or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
@@ -154,8 +141,6 @@ resolv_ptr <- function(ip, nameserver = NA_character_) {
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @return list of SRV records (named fields) or \code{NULL} if none
-#' @family ldns
-#' @family resolv
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
