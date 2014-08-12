@@ -229,9 +229,7 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
     // clean up
     free(answer_str) ;
   }
-  
-  Rcout<<"end for"<<std::endl;
-  
+    
   // clean up 
   ldns_rr_list_deep_free(txt);  
   ldns_pkt_free(p);
