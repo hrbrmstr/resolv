@@ -11,7 +11,7 @@ resolv_a(fqdn, nameserver = NA_character_)
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
 }
 \value{
-vector of A records or \code{NULL} if none
+vector of A records or \code{character(0)} if none
 }
 \description{
 Returns the DNS A records for a given FQDN

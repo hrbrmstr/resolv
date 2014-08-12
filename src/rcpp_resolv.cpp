@@ -32,7 +32,7 @@ using namespace Rcpp;
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-//' @return vector of A records or \code{NULL} if none
+//' @return vector of A records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
@@ -134,7 +134,7 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return vector of TXT records or \code{NULL} if none
+//' @return vector of TXT records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
@@ -245,7 +245,7 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
 //' @param domain input character vector (domain name)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return list of MX records (preference & exchange) or \code{NULL} if none
+//' @return list of MX records (preference & exchange) or an empty list if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export

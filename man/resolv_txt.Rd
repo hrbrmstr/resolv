@@ -13,7 +13,7 @@ resolv_txt(fqdn, nameserver = NA_character_, showWarnings = FALSE)
 \item{showWarnings}{display R warning messages (bool)}
 }
 \value{
-vector of TXT records or \code{NULL} if none
+vector of TXT records or \code{character(0)} if none
 }
 \description{
 Returns the DNS TXT records for a given FQDN

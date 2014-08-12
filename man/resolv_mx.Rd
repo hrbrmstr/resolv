@@ -13,7 +13,7 @@ resolv_mx(domain, nameserver = NA_character_, showWarnings = FALSE)
 \item{showWarnings}{display R warning messages (bool)}
 }
 \value{
-list of MX records (preference & exchange) or \code{NULL} if none
+list of MX records (preference & exchange) or an empty list if none
 }
 \description{
 Returns the DNS MX records for a given domain
