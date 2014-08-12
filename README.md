@@ -43,6 +43,15 @@ Direct `ldns` wrappers:
 - `resolv_a()` - perform A lookups
 - `resolv_ptr()` - perform PTR lookups
 
+and, their vectorized counterparts:
+
+- `TXT()`
+- `MX()`
+- `CNAME()`
+- `SRV()`
+- `A()`
+- `PTR()`
+
 (TODO: to add "SOA", "NS", and other record retrieval functions as well as a `dig`-like one which returns the full response for a query)
 
 Ancillary/"fun"ctions

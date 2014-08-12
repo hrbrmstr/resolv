@@ -32,6 +32,7 @@ using namespace Rcpp;
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param showWarnings display R warning messages (bool)
 //' @return vector of A records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
@@ -53,7 +54,7 @@ using namespace Rcpp;
 //' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 //' [1] "0.25.0.0"
 //[[Rcpp::export]]
-CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
+CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -87,14 +88,14 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query") ; return(R_NilValue) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query") ;}; return(R_NilValue) ; }
 
   // get the A record(s)
   a = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER); 
   if (!a) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(a);
-    Rf_warning("No A records");
+    if(showWarnings){Rf_warning("No A records");};
     return(CharacterVector(0)) ;
   }
   
@@ -347,6 +348,7 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param showWarnings display R warning messages (bool)
 //' @return vector of CNAME records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
@@ -357,7 +359,7 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
 //' resolv_cname("www.paypal.com")
 //' [1] "www.paypal.com.akadns.net."
 // [[Rcpp::export]]
-CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
+CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -391,14 +393,14 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query") ; return(CharacterVector(0)) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query") ;}; return(CharacterVector(0)) ; }
 
   // get the CNAME record(s)
   cname = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_CNAME, LDNS_SECTION_ANSWER); 
   if (!cname) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(cname);
-    Rf_warning("No CNAME records") ;
+    if(showWarnings){Rf_warning("No CNAME records") ;};
     return(CharacterVector(0)) ;
   }
   

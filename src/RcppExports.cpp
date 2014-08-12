@@ -6,15 +6,16 @@
 using namespace Rcpp;
 
 // resolv_a
-CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING);
-RcppExport SEXP resolv_resolv_a(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings = false);
+RcppExport SEXP resolv_resolv_a(SEXP fqdnSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< std::string >::type fqdn(fqdnSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
-        CharacterVector __result = resolv_a(fqdn, nameserver);
+        Rcpp::traits::input_parameter< bool >::type showWarnings(showWarningsSEXP );
+        CharacterVector __result = resolv_a(fqdn, nameserver, showWarnings);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -56,15 +57,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // resolv_cname
-CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING);
-RcppExport SEXP resolv_resolv_cname(SEXP fqdnSEXP, SEXP nameserverSEXP) {
+CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings = false);
+RcppExport SEXP resolv_resolv_cname(SEXP fqdnSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< std::string >::type fqdn(fqdnSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
-        CharacterVector __result = resolv_cname(fqdn, nameserver);
+        Rcpp::traits::input_parameter< bool >::type showWarnings(showWarningsSEXP );
+        CharacterVector __result = resolv_cname(fqdn, nameserver, showWarnings);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

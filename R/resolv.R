@@ -1,3 +1,58 @@
+#' Vectorized version of \link{resolv_a}
+#' 
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return named vector or list
+#' @export
+A <- Vectorize(resolv_a)
+
+#' Vectorized version of \link{resolv_txt}
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return named vector or list
+#' @export
+TXT <- Vectorize(resolv_txt)
+
+#' Vectorized version of \link{resolv_mx}
+#'
+#' @param domain input character vector (domain name)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return named vector or list 
+#' @export
+MX <- Vectorize(resolv_mx)
+
+#' Vectorized version of \link{resolv_cname}
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return list
+#' @export
+CNAME <- Vectorize(resolv_cname)
+
+#' Vectorized version of \link{resolv_ptr}
+#'
+#' @param IP address input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return list
+#' @export
+PTR <- Vectorize(resolv_ptr)
+
+#' Vectorized version of \link{resolv_ptr}
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @return list
+#' @export
+SRV <- Vectorize(resolv_srv)
+
+
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
 #' @param ip address to lookup (character vector)

@@ -3,12 +3,14 @@
 \alias{resolv_a}
 \title{Returns the DNS A records for a given FQDN}
 \usage{
-resolv_a(fqdn, nameserver = NA_character_)
+resolv_a(fqdn, nameserver = NA_character_, showWarnings = FALSE)
 }
 \arguments{
 \item{fqdn}{input character vector (FQDN)}
 
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
+
+\item{showWarnings}{display R warning messages (bool)}
 }
 \value{
 vector of A records or \code{character(0)} if none
