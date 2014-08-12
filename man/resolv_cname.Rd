@@ -11,7 +11,7 @@ resolv_cname(fqdn, nameserver = NA_character_)
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
 }
 \value{
-vector of CNAME records or \code{NULL} if none
+vector of CNAME records or \code{character(0)} if none
 }
 \description{
 Returns the DNS CNAME records for a given FQDN

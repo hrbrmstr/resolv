@@ -3,12 +3,14 @@
 \alias{resolv_txt}
 \title{Returns the DNS TXT records for a given FQDN}
 \usage{
-resolv_txt(fqdn, nameserver = NA_character_)
+resolv_txt(fqdn, nameserver = NA_character_, showWarnings = FALSE)
 }
 \arguments{
 \item{fqdn}{input character vector (FQDN)}
 
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
+
+\item{showWarnings}{display R warning messages (bool)}
 }
 \value{
 vector of TXT records or \code{NULL} if none

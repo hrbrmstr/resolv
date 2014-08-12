@@ -3,15 +3,17 @@
 \alias{resolv_ptr}
 \title{Returns the DNS PTR records for a given IP address}
 \usage{
-resolv_ptr(ip, nameserver = NA_character_)
+resolv_ptr(ip, nameserver = NA_character_, showWarnings = FALSE)
 }
 \arguments{
 \item{IP}{address input character vector (FQDN)}
 
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
+
+\item{showWarnings}{display R warning messages (bool)}
 }
 \value{
-vector of PTR records or \code{NULL} if none
+vector of PTR records or \code{character(0)} if none
 }
 \description{
 Returns the DNS PTR records for a given IP address

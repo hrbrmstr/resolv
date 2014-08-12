@@ -67,19 +67,19 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(R_NilValue) ; }
+  if (!domain) { return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
     
   }
   
@@ -95,7 +95,7 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(a);
     Rf_warning("No A records");
-    return(R_NilValue) ;
+    return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -133,6 +133,7 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param showWarnings display R warning messages (bool)
 //' @return vector of TXT records or \code{NULL} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
@@ -162,7 +163,7 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING) {
 //' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 //' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
 //[[Rcpp::export]]
-CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
+CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -177,19 +178,19 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
 
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(R_NilValue) ; }
+  if (!domain) { return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
     
   }
   
@@ -197,24 +198,24 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) {Rf_warning("Could not process query"); return(R_NilValue) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(CharacterVector(0)) ; }
 
   // get the TXT record(s)
   txt = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_TXT, LDNS_SECTION_ANSWER); 
   if (!txt) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(txt);
-    Rf_warning("No TXT records") ;
-    return(R_NilValue) ;
+    if(showWarnings){Rf_warning("No TXT records") ;};
+    return(CharacterVector(0)) ;
   }
-  
+
   // sorting makes the results seem less "random"
   ldns_rr_list_sort(txt); 
   
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(txt) ;
   CharacterVector results(nr) ;
-  
+    
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
     // get record
@@ -228,6 +229,8 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
     // clean up
     free(answer_str) ;
   }
+  
+  Rcout<<"end for"<<std::endl;
   
   // clean up 
   ldns_rr_list_deep_free(txt);  
@@ -243,6 +246,7 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
 //'
 //' @param domain input character vector (domain name)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param showWarnings display R warning messages (bool)
 //' @return list of MX records (preference & exchange) or \code{NULL} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
@@ -260,7 +264,7 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING) {
 //' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
 //' 
 //[[Rcpp::export]]
-List resolv_mx(std::string domain, SEXP nameserver = NA_STRING) {
+List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *dname = NULL;
@@ -274,19 +278,19 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING) {
   
   // we only passed in one IP address
   dname = ldns_dname_new_frm_str(domain.c_str());
-  if (!dname) { return(R_NilValue) ; }
+  if (!dname) { return(List()) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(List()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(List()) ; }
     
   }
   
@@ -294,15 +298,15 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(dname); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(List()) ; }
 
   // get the MX record(s)
   mx = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER); 
   if (!mx) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(mx);
-    Rf_warning("No MX records") ;
-    return(R_NilValue) ;
+    if(showWarnings){Rf_warning("No MX records") ;};
+    return(List()) ;
   }
   
   // sorting makes the results seem less "random"
@@ -345,7 +349,7 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING) {
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-//' @return vector of CNAME records or \code{NULL} if none
+//' @return vector of CNAME records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -369,19 +373,19 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(R_NilValue) ; }
+  if (!domain) { return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
     
   }
   
@@ -389,7 +393,7 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query") ; return(R_NilValue) ; }
+  if (!p) { Rf_warning("Could not process query") ; return(CharacterVector(0)) ; }
 
   // get the CNAME record(s)
   cname = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_CNAME, LDNS_SECTION_ANSWER); 
@@ -397,7 +401,7 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(cname);
     Rf_warning("No CNAME records") ;
-    return(R_NilValue) ;
+    return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -453,7 +457,8 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //'
 //' @param IP address input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-//' @return vector of PTR records or \code{NULL} if none
+//' @param showWarnings display R warning messages (bool)
+//' @return vector of PTR records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -479,7 +484,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' [133] "publishing-research.org."   "applefinalcutproworld.com."
 //' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 //[[Rcpp::export]]
-SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
+CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -498,19 +503,19 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
  
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(rev.c_str());
-  if (!domain) { return(R_NilValue) ; }
+  if (!domain) { return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
     
   }
   
@@ -518,15 +523,15 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(CharacterVector(0)) ; }
 
   // get the PTR record(s)
   ptr = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_PTR, LDNS_SECTION_ANSWER); 
   if (!ptr) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(ptr);
-    Rf_warning("No PTR records");
-    return(R_NilValue) ;
+    if(showWarnings){Rf_warning("No PTR records");};
+    return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -564,7 +569,8 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-//' @return list of SRV records (named fields) or \code{NULL} if none
+//' @param showWarnings display R warning messages (bool)
+//' @return list of SRV records (named fields) or an empty list if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -581,7 +587,7 @@ SEXP resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING) {
 //'4       20      0 5269 alt3.xmpp-server.l.google.com.
 //'5       20      0 5269 alt4.xmpp-server.l.google.com.
 //[[Rcpp::export]]
-List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING) {
+List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -601,19 +607,19 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING) {
   
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(R_NilValue) ; }
+  if (!domain) { return(List()) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(R_NilValue) ; }
+    if (res == NULL ) { return(List()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(R_NilValue) ; }
+    if (s != LDNS_STATUS_OK) { return(List()) ; }
     
   }
   
@@ -621,15 +627,15 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING) {
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { Rf_warning("Could not process query"); return(R_NilValue) ; }
+  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(List()) ; }
 
   // get the SRV record(s)
   srv = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_SRV, LDNS_SECTION_ANSWER); 
   if (!srv) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(srv);
-    Rf_warning("No SRV records") ;
-    return(R_NilValue) ;
+    if(showWarnings){Rf_warning("No SRV records");} ;
+    return(List()) ;
   }
   
   // sorting makes the results seem less "random"

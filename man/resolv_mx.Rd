@@ -3,12 +3,14 @@
 \alias{resolv_mx}
 \title{Returns the DNS MX records for a given domain}
 \usage{
-resolv_mx(domain, nameserver = NA_character_)
+resolv_mx(domain, nameserver = NA_character_, showWarnings = FALSE)
 }
 \arguments{
 \item{domain}{input character vector (domain name)}
 
 \item{nameserver}{the nameserver to send the request to (optional; uses standard resolver behavior if not specified)}
+
+\item{showWarnings}{display R warning messages (bool)}
 }
 \value{
 list of MX records (preference & exchange) or \code{NULL} if none
