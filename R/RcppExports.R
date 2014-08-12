@@ -36,6 +36,7 @@ resolv_a <- function(fqdn, nameserver = NA_character_) {
 #' @return vector of TXT records or \code{NULL} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
+#' @export
 #' @examples
 #' require(resolv)
 #' 
@@ -71,6 +72,7 @@ resolv_txt <- function(fqdn, nameserver = NA_character_) {
 #' @return list of MX records (preference & exchange) or \code{NULL} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
+#' @export
 #' @examples
 #' require(resolv)
 #' 
@@ -94,6 +96,7 @@ resolv_mx <- function(domain, nameserver = NA_character_) {
 #' @return vector of CNAME records or \code{NULL} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+#' @export
 #' @examples
 #' require(resolv)
 #'
