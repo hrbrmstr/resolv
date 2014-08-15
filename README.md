@@ -27,8 +27,8 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Package:     resolv
     Type:        Package
     Title:       Wrapper to ldns library for DNS calls from R
-    Version:     0.1.1
-    Date:        2014-08-12
+    Version:     0.1.2
+    Date:        2014-08-15
     Author:      Bob Rudis (@hrbrmstr)
     Maintainer:  Bob Rudis <bob@rudis.net>
     Description: Wrapper to ldns library for DNS calls from R
