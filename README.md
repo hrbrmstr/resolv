@@ -94,9 +94,8 @@ These show off some of what you can do with DNS
     library(foreach)
     library(doParallel)
     library(data.table)
-    library(resolv)
 
-    alexa <- fread("top-1m.csv") # http://s3.amazonaws.com/alexa-static/top-1m.csv.z
+    alexa <- fread("top-1m.csv") # http://s3.amazonaws.com/alexa-static/top-1m.csv.zip
 
     n <- 10000 # top 'n' to resolve
 
