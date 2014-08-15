@@ -88,6 +88,21 @@ These show off some of what you can do with DNS
     
     ## DNS seekrit TXT URLs
     browseURL(gsub("\"", "", resolv_txt("google-public-dns-a.google.com")))
+    
+    ## parallel queries
+    
+    library(foreach)
+    library(doParallel)
+    library(data.table)
+    library(resolv)
+
+    alexa <- fread("top-1m.csv") # http://s3.amazonaws.com/alexa-static/top-1m.csv.z
+
+    n <- 10000 # top 'n' to resolve
+
+    registerDoParallel(cores=6) # set to what you can on your system
+    output <- foreach(i=1:n, .packages=c("Rcpp", "resolv")) %dopar% resolv_a(alexa[i,]$V2)
+    names(output) <- alexa[1:n,]$V2})
 
 
 ### Author(s)
