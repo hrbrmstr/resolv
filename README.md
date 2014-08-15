@@ -14,6 +14,8 @@ Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pul
 
 ### News
 
+Version update to `0.1.2` after running `valgrind` and fixing some missing `free`'s.
+
 Version update to `0.1.1` as I modified some of the roxygen documentation to better make this work out of the box. Any help getting it to work on Windows is greatly appreciated
 
 ### Description

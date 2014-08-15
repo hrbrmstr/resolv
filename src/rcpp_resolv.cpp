@@ -63,7 +63,6 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
   ldns_status s;
   
   ldns_rr *answer;
-  ldns_rdf *rd ;
   char *answer_str ;
   
   // we only passed in one IP address
@@ -75,12 +74,12 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   }
   
@@ -88,13 +87,18 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query") ;}; return(R_NilValue) ; }
+  if (!p) { 
+    if(showWarnings) { Rf_warning("Could not process query") ; }; 
+    ldns_resolver_deep_free(res);
+    return(CharacterVector(0)) ;
+  }
 
   // get the A record(s)
   a = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER); 
   if (!a) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(a);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No A records");};
     return(CharacterVector(0)) ;
   }
@@ -110,10 +114,8 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
   for (int i=0; i<nr; i++) {
     // get record
     answer = ldns_rr_list_rr(a, i) ;
-    // get data
-    rd = ldns_rr_a_address(answer) ;
-    // convert to char
-    answer_str = ldns_rdf2str(rd) ;
+    // get data & convert to char
+    answer_str = ldns_rdf2str(ldns_rr_a_address(answer) ) ;
     // add to vector
     results[i] = answer_str ;
     // clean up
@@ -173,7 +175,6 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
   ldns_status s;
   
   ldns_rr *answer;
-  ldns_rdf *rd ;
   char *answer_str ;
   
 
@@ -186,12 +187,12 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   }
   
@@ -199,13 +200,18 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(CharacterVector(0)) ; }
+  if (!p) {
+    if(showWarnings){Rf_warning("Could not process query");};
+    ldns_resolver_deep_free(res);
+    return(CharacterVector(0)) ;
+  }
 
   // get the TXT record(s)
   txt = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_TXT, LDNS_SECTION_ANSWER); 
   if (!txt) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(txt);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No TXT records") ;};
     return(CharacterVector(0)) ;
   }
@@ -221,10 +227,8 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
   for (int i=0; i<nr; i++) {
     // get record
     answer = ldns_rr_list_rr(txt, i) ;
-    // get data
-    rd = ldns_rr_rdf(answer, 0) ;
-    // convert to char
-    answer_str = ldns_rdf2str(rd) ;
+    // get data & convert to char
+    answer_str = ldns_rdf2str(ldns_rr_rdf(answer, 0)) ;
     // add to vector
     results[i] = answer_str ;
     // clean up
@@ -272,7 +276,6 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   ldns_status s;
   
   ldns_rr *answer;
-  ldns_rdf *rd, *pref ;
   char *answer_str, *pref_str ;
   
   // we only passed in one IP address
@@ -284,12 +287,12 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(List()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(dname); return(List()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(List()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(dname); return(List()) ; }
     
   }
   
@@ -297,13 +300,18 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
  
   ldns_rdf_deep_free(dname); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(List()) ; }
+  if (!p) { 
+    if(showWarnings){Rf_warning("Could not process query");}; 
+    ldns_resolver_deep_free(res);
+    return(List()) ; 
+  }
 
   // get the MX record(s)
   mx = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER); 
   if (!mx) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(mx);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No MX records") ;};
     return(List()) ;
   }
@@ -319,12 +327,9 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   for (int i=0; i<nr; i++) {
     // get record
     answer = ldns_rr_list_rr(mx, i) ;
-    // get data
-    rd = ldns_rr_mx_exchange(answer) ;
-    pref = ldns_rr_mx_preference (answer) ;
-    // convert to char
-    answer_str = ldns_rdf2str(rd) ;
-    pref_str = ldns_rdf2str(pref) ;
+    // get data & convert to char
+    answer_str = ldns_rdf2str(ldns_rr_mx_exchange(answer)) ;
+    pref_str = ldns_rdf2str(ldns_rr_mx_preference (answer)) ;
     
     // add to list
     results[i] = List::create(Named("preference") = CharacterVector::create(pref_str),
@@ -380,12 +385,12 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   }
   
@@ -393,13 +398,18 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query") ;}; return(CharacterVector(0)) ; }
+  if (!p) { 
+    if(showWarnings){Rf_warning("Could not process query") ;}; 
+    return(CharacterVector(0)) ; 
+    ldns_resolver_deep_free(res);
+  }
 
   // get the CNAME record(s)
   cname = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_CNAME, LDNS_SECTION_ANSWER); 
   if (!cname) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(cname);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No CNAME records") ;};
     return(CharacterVector(0)) ;
   }
@@ -484,7 +494,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' [133] "publishing-research.org."   "applefinalcutproworld.com."
 //' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 //[[Rcpp::export]]
-CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool showWarnings=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -493,12 +503,9 @@ CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnin
   ldns_status s;
   
   ldns_rr *answer;
-  ldns_rdf *rd ;
   char *answer_str ;
   
-  // SEXP passes in an R vector, we need this as a C++ string
-  std::string ips = as<std::string>(ip);
-  std::vector<std::string> octets = split(ips, '.');
+  std::vector<std::string> octets = split(ip, '.');
   std::string rev = octets[3] + "." + octets[2] + "." + octets[1] + "." + octets[0] + ".in-addr.arpa." ;
  
   // we only passed in one IP address
@@ -510,12 +517,12 @@ CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnin
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
     
   }
   
@@ -523,13 +530,18 @@ CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnin
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(CharacterVector(0)) ; }
+  if (!p) { 
+    if(showWarnings){Rf_warning("Could not process query");}; 
+    ldns_resolver_deep_free(res);
+    return(CharacterVector(0)) ;
+  }
 
   // get the PTR record(s)
   ptr = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_PTR, LDNS_SECTION_ANSWER); 
   if (!ptr) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(ptr);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No PTR records");};
     return(CharacterVector(0)) ;
   }
@@ -545,10 +557,8 @@ CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnin
   for (int i=0; i<nr; i++) {
     // get record
     answer = ldns_rr_list_rr(ptr, i) ;
-    // get data
-    rd = ldns_rr_rdf(answer, 0) ;
-    // convert to char
-    answer_str = ldns_rdf2str(rd) ;
+    // get data & convert to char
+    answer_str = ldns_rdf2str(ldns_rr_rdf(answer, 0) ) ;
     // add to vector
     results[i] = answer_str ;
     // clean up
@@ -614,12 +624,12 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { return(List()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(List()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { return(List()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(List()) ; }
     
   }
   
@@ -627,13 +637,18 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
  
   ldns_rdf_deep_free(domain); // no longer needed
   
-  if (!p) { if(showWarnings){Rf_warning("Could not process query");}; return(List()) ; }
+  if (!p) { 
+    if(showWarnings){Rf_warning("Could not process query");}; 
+    ldns_resolver_deep_free(res);
+    return(List()) ; 
+  }
 
   // get the SRV record(s)
   srv = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_SRV, LDNS_SECTION_ANSWER); 
   if (!srv) {
     ldns_pkt_free(p);
     ldns_rr_list_deep_free(srv);
+    ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No SRV records");} ;
     return(List()) ;
   }

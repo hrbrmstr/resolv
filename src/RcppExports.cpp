@@ -74,13 +74,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // resolv_ptr
-CharacterVector resolv_ptr(SEXP ip, SEXP nameserver = NA_STRING, bool showWarnings = false);
+CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool showWarnings = false);
 RcppExport SEXP resolv_resolv_ptr(SEXP ipSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< SEXP >::type ip(ipSEXP );
+        Rcpp::traits::input_parameter< std::string >::type ip(ipSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
         Rcpp::traits::input_parameter< bool >::type showWarnings(showWarningsSEXP );
         CharacterVector __result = resolv_ptr(ip, nameserver, showWarnings);
