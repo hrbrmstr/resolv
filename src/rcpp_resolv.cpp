@@ -32,8 +32,9 @@ using namespace Rcpp;
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param full include full record response information in results (bool)
 //' @param showWarnings display R warning messages (bool)
-//' @return vector of A records or \code{character(0)} if none
+//' @return vector or data frame (if \code{full}==\code{TRUE}) of A records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
@@ -54,7 +55,8 @@ using namespace Rcpp;
 //' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 //' [1] "0.25.0.0"
 //[[Rcpp::export]]
-CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, 
+              bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -109,6 +111,9 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(a) ;
   CharacterVector results(nr) ;
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
   
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
@@ -118,6 +123,12 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
     answer_str = ldns_rdf2str(ldns_rr_a_address(answer) ) ;
     // add to vector
     results[i] = answer_str ;
+    
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
     // clean up
     free(answer_str) ;
   }
@@ -127,8 +138,17 @@ CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool sho
   ldns_pkt_free(p);
   ldns_resolver_deep_free(res);
  
-  // return the A answer vector
-  return(results);
+  // return the A answer vector or data frame
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("address")=results,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(results);
+  }
     
 }
 

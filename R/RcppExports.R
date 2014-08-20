@@ -5,8 +5,9 @@
 #'
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param full include full record response information in results (bool)
 #' @param showWarnings display R warning messages (bool)
-#' @return vector of A records or \code{character(0)} if none
+#' @return vector or data frame (if \code{full}==\code{TRUE}) of A records or \code{character(0)} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
@@ -26,8 +27,8 @@
 #' ## must put at least one DNS hack in
 #' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 #' [1] "0.25.0.0"
-resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_a', PACKAGE = 'resolv', fqdn, nameserver, showWarnings)
+resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_a', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS TXT records for a given FQDN

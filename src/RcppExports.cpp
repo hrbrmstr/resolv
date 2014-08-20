@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // resolv_a
-CharacterVector resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings = false);
-RcppExport SEXP resolv_resolv_a(SEXP fqdnSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP) {
+SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings = false, bool full = false);
+RcppExport SEXP resolv_resolv_a(SEXP fqdnSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP, SEXP fullSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -15,7 +15,8 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< std::string >::type fqdn(fqdnSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
         Rcpp::traits::input_parameter< bool >::type showWarnings(showWarningsSEXP );
-        CharacterVector __result = resolv_a(fqdn, nameserver, showWarnings);
+        Rcpp::traits::input_parameter< bool >::type full(fullSEXP );
+        SEXP __result = resolv_a(fqdn, nameserver, showWarnings, full);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
