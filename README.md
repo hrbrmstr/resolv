@@ -16,6 +16,8 @@ Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pul
 
 ### News
 
+Version update to `0.2.0` includes ability to (optionally - set the `full` parameter to `TRUE`) return `class`, `ttl` & `owner` fields, includes `resolve_ns()` and `NS()` functions, plus changes return type for a few functions.
+
 Version update to `0.1.2` after running `valgrind` and fixing some missing `free`'s (`#ty` to [@arj](http://twitter.com/arj)!)
 
 Version update to `0.1.1` as I modified some of the roxygen documentation to better make this work out of the box. Any help getting it to work on Windows is greatly appreciated
@@ -29,7 +31,7 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Package:     resolv
     Type:        Package
     Title:       Wrapper to ldns library for DNS calls from R
-    Version:     0.1.2
+    Version:     0.2.0
     Date:        2014-08-15
     Author:      Bob Rudis (@hrbrmstr)
     Maintainer:  Bob Rudis <bob@rudis.net>
@@ -41,11 +43,12 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
 Direct `ldns` wrappers:
 
 - `resolv_txt()` - perform TXT lookups
-- `resolv_mx()` - perform MX lookups (returns list)
+- `resolv_mx()` - perform MX lookups (returns data frame)
 - `resolv_cname()` - perform CNAME lookups
-- `resolv_srv()` - perform SRV lookups (returns list)
+- `resolv_srv()` - perform SRV lookups (returns data frame)
 - `resolv_a()` - perform A lookups
 - `resolv_ptr()` - perform PTR lookups
+- `resolv_ns()` - perform NS lookups
 
 and, their vectorized counterparts:
 
@@ -55,6 +58,7 @@ and, their vectorized counterparts:
 - `SRV()`
 - `A()`
 - `PTR()`
+- `NS()`
 
 (TODO: to add "SOA", "NS", and other record retrieval functions as well as a `dig`-like one which returns the full response for a query)
 
@@ -73,14 +77,14 @@ These show off some of what you can do with DNS
     library(plyr)
 
     ## google talk provides a good example for this
-    ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
-    priority weight port                         target
-    1        5      0 5269      xmpp-server.l.google.com.
-    2       20      0 5269 alt1.xmpp-server.l.google.com.
-    3       20      0 5269 alt2.xmpp-server.l.google.com.
-    4       20      0 5269 alt3.xmpp-server.l.google.com.
-    5       20      0 5269 alt4.xmpp-server.l.google.com.
-     
+    resolv_srv("_xmpp-server._tcp.gmail.com.")
+                             fqdn priority weight port                         target
+    1 _xmpp-server._tcp.gmail.com.        5      0 5269      xmpp-server.l.google.com.
+    2 _xmpp-server._tcp.gmail.com.       20      0 5269 alt1.xmpp-server.l.google.com.
+    3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com.
+    4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com.
+    5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com.
+
     ## where www.nasa.gov hosts
     resolv_a("www.nasa.gov")
     [1] "69.28.187.45"    "208.111.161.110"

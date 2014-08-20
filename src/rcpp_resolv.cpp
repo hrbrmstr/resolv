@@ -32,8 +32,8 @@ using namespace Rcpp;
 //'
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-//' @param full include full record response information in results (bool)
 //' @param showWarnings display R warning messages (bool)
+//' @param full include full record response information in results (bool)
 //' @return vector or data frame (if \code{full}==\code{TRUE}) of A records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
@@ -157,7 +157,8 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return vector of TXT records or \code{character(0)} if none
+//' @param full include full record response information in results (bool)
+//' @return vector or data frame (if \code{full}==\code{TRUE}) of TXT records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
@@ -186,7 +187,8 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
 //' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 //' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
 //[[Rcpp::export]]
-CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, 
+                           bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -242,6 +244,9 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(txt) ;
   CharacterVector results(nr) ;
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
     
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
@@ -251,6 +256,12 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
     answer_str = ldns_rdf2str(ldns_rr_rdf(answer, 0)) ;
     // add to vector
     results[i] = answer_str ;
+    
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
     // clean up
     free(answer_str) ;
   }
@@ -261,7 +272,16 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
   ldns_resolver_deep_free(res);
  
   // return the TXT answer vector
-  return(results);
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("txt")=results,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(results);
+  }
     
 }
 
@@ -270,24 +290,28 @@ CharacterVector resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, bool s
 //' @param domain input character vector (domain name)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return list of MX records (preference & exchange) or an empty list if none
+//' @param full include full record response information in results (bool)
+//' @return data frame of MX records (preference & exchange; +owner,class,ttl if \code{full}==\code{TRUE}) or an empty data frame if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
 //' @examples
 //' require(resolv)
 //' 
-//' unlist(resolv_mx("securitymetrics.org"))
-//'            preference               exchange 
-//'                   "0" "securitymetrics.org." 
-//'
-//' ## get the MX records for Google
-//' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
-//' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
-//' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
+//' resolv_mx("rudis.net", full=TRUE)
+//' ##        fqdn prefernece                 exchange      owner class ttl
+//' ## 1 rudis.net          1      aspmx.l.google.com. rudis.net.     1 599
+//' ## 2 rudis.net          5 alt1.aspmx.l.google.com. rudis.net.     1 599
+//' ## 3 rudis.net          5 alt2.aspmx.l.google.com. rudis.net.     1 599
+//' ## 4 rudis.net         10   aspmx2.googlemail.com. rudis.net.     1 599
+//' ## 5 rudis.net         10   aspmx3.googlemail.com. rudis.net.     1 599
+//' ## 6 rudis.net         10   aspmx4.googlemail.com. rudis.net.     1 599
+//' ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
+//' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
 //' 
 //[[Rcpp::export]]
-List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING, 
+               bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *dname = NULL;
@@ -300,19 +324,19 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   
   // we only passed in one IP address
   dname = ldns_dname_new_frm_str(domain.c_str());
-  if (!dname) { return(List()) ; }
+  if (!dname) { return(DataFrame()) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(dname); return(List()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(dname); return(DataFrame()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(dname); return(List()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(dname); return(DataFrame()) ; }
     
   }
   
@@ -323,7 +347,7 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    return(List()) ; 
+    return(DataFrame()) ; 
   }
 
   // get the MX record(s)
@@ -333,7 +357,7 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
     ldns_rr_list_deep_free(mx);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No MX records") ;};
-    return(List()) ;
+    return(DataFrame()) ;
   }
   
   // sorting makes the results seem less "random"
@@ -341,8 +365,12 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(mx) ;
-  List results(nr) ;
-  
+  CharacterVector prefs(nr) ;
+  CharacterVector exch(nr) ;
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
+ 
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
     // get record
@@ -351,9 +379,15 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
     answer_str = ldns_rdf2str(ldns_rr_mx_exchange(answer)) ;
     pref_str = ldns_rdf2str(ldns_rr_mx_preference (answer)) ;
     
-    // add to list
-    results[i] = List::create(Named("preference") = CharacterVector::create(pref_str),
-                              Named("exchange") = CharacterVector::create(answer_str)) ;
+    prefs[i] = pref_str ;
+    exch[i] = answer_str ;
+    
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
+
     // clean up
     free(answer_str) ;
     free(pref_str) ;
@@ -364,8 +398,20 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
   ldns_pkt_free(p);
   ldns_resolver_deep_free(res);
  
-  // return the MX answer vector
-  return(results);
+  // return the MX answer data frame
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(domain),
+                             Named("prefernece")=prefs,
+                             Named("exchange")=exch,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(domain),
+                             Named("prefernece")=prefs,
+                             Named("exchange")=exch));
+  }
     
 }
 
@@ -374,7 +420,8 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return vector of CNAME records or \code{character(0)} if none
+//' @param full include full record response information in results (bool)
+//' @return vector or data frame (if \code{full}==\code{TRUE}) of CNAME records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -384,7 +431,8 @@ List resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarning
 //' resolv_cname("www.paypal.com")
 //' [1] "www.paypal.com.akadns.net."
 // [[Rcpp::export]]
-CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
+                             bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -440,7 +488,10 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(cname) ;
   CharacterVector results(nr) ;
-    
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
+  
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
     // get record
@@ -451,7 +502,13 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool
     answer_str = ldns_rdf2str(rd) ;
     // add to vector
     results[i] = answer_str ;
-    // clean up
+     
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
+   // clean up
     free(answer_str) ;
   }
   
@@ -461,8 +518,131 @@ CharacterVector resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING, bool
   ldns_resolver_deep_free(res);
  
   // return the CNAME answer vector
-  return(results);
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("cname")=results,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(results);
+  }    
+}
+
+
+//' Returns the DNS NS records for a given FQDN
+//'
+//' @param fqdn input character vector (FQDN)
+//' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+//' @param showWarnings display R warning messages (bool)
+//' @param full include full record response information in results (bool)
+//' @return vector or data frame (if \code{full}==\code{TRUE}) of NS records or \code{character(0)} if none
+//' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+//' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+//' @export
+//' @examples
+//' require(resolv)
+//'
+//' resolv_ns("www.paypal.com")
+// [[Rcpp::export]]
+SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
+                             bool showWarnings=false, bool full=false) {
+  
+  ldns_resolver *res = NULL;
+  ldns_rdf *domain = NULL;
+  ldns_pkt *p = NULL;
+  ldns_rr_list *nsl = NULL;
+  ldns_status s;
+  
+  ldns_rr *answer;
+  ldns_rdf *rd ;
+  char *answer_str ;
+  
+  // we only passed in one IP address
+  domain = ldns_dname_new_frm_str(fqdn.c_str());
+  if (!domain) { return(CharacterVector(0)) ; }
+  
+  std::string ns = as<std::string>(nameserver);
+  
+  if (ns != "NA") {
     
+    res = setresolver(ns.c_str()) ;
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    
+  } else {
+    
+    s = ldns_resolver_new_frm_file(&res, NULL);
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    
+  }
+  
+  p = ldns_resolver_query(res, domain, LDNS_RR_TYPE_NS, LDNS_RR_CLASS_IN, LDNS_RD);
+ 
+  ldns_rdf_deep_free(domain); // no longer needed
+  
+  if (!p) { 
+    if(showWarnings){Rf_warning("Could not process query") ;}; 
+    return(CharacterVector(0)) ; 
+    ldns_resolver_deep_free(res);
+  }
+
+  // get the NS record(s)
+  nsl = ldns_pkt_rr_list_by_type(p, LDNS_RR_TYPE_NS, LDNS_SECTION_ANSWER); 
+  if (!nsl) {
+    ldns_pkt_free(p);
+    ldns_rr_list_deep_free(nsl);
+    ldns_resolver_deep_free(res);
+    if(showWarnings){Rf_warning("No NS records") ;};
+    return(CharacterVector(0)) ;
+  }
+  
+  // sorting makes the results seem less "random"
+  ldns_rr_list_sort(nsl); 
+  
+  // get the total # of records and make an R char vector of same length
+  int nr = ldns_rr_list_rr_count(nsl) ;
+  CharacterVector results(nr) ;
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
+  
+  // for each record, get the result as text and add to the vector
+  for (int i=0; i<nr; i++) {
+    // get record
+    answer = ldns_rr_list_rr(nsl, i) ;
+    // get data
+    rd = ldns_rr_rdf(answer, 0) ;
+    // convert to char
+    answer_str = ldns_rdf2str(rd) ;
+    // add to vector
+    results[i] = answer_str ;
+     
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
+   // clean up
+    free(answer_str) ;
+  }
+  
+  // clean up 
+  ldns_rr_list_deep_free(nsl);  
+  ldns_pkt_free(p);
+  ldns_resolver_deep_free(res);
+ 
+  // return the CNAME answer vector
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("ns")=results,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(results);
+  }    
 }
 
 // helper functions to split a string
@@ -488,7 +668,8 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' @param IP address input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return vector of PTR records or \code{character(0)} if none
+//' @param full include full record response information in results (bool)
+//' @return vector or data frame (if \code{full}==\code{TRUE}) of PTR records or \code{character(0)} if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -514,7 +695,8 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' [133] "publishing-research.org."   "applefinalcutproworld.com."
 //' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
 //[[Rcpp::export]]
-CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, 
+                           bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -572,7 +754,10 @@ CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool sho
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(ptr) ;
   CharacterVector results(nr) ;
-    
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
+  
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
     // get record
@@ -581,6 +766,12 @@ CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool sho
     answer_str = ldns_rdf2str(ldns_rr_rdf(answer, 0) ) ;
     // add to vector
     results[i] = answer_str ;
+    
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
     // clean up
     free(answer_str) ;
   }
@@ -591,8 +782,15 @@ CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool sho
   ldns_resolver_deep_free(res);
  
   // return the PTR answer vector
-  return(results);
-    
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(ip),
+                             Named("ptr")=results,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(results);
+  }    
 }
 
 //' Returns the DNS SRV records for a given FQDN
@@ -600,7 +798,8 @@ CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool sho
 //' @param fqdn input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
-//' @return list of SRV records (named fields) or an empty list if none
+//' @param full include full record response information in results (bool)
+//' @return data frame of SRV records (named fields; +owner,class,ttl if \code{full}==\code{TRUE}) or an empty list if none
 //' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
@@ -609,15 +808,16 @@ CharacterVector resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, bool sho
 //' library(plyr)
 //' 
 //' ## google talk provides a good example for this
-//' ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
-//'  priority weight port                         target
-//'1        5      0 5269      xmpp-server.l.google.com.
-//'2       20      0 5269 alt1.xmpp-server.l.google.com.
-//'3       20      0 5269 alt2.xmpp-server.l.google.com.
-//'4       20      0 5269 alt3.xmpp-server.l.google.com.
-//'5       20      0 5269 alt4.xmpp-server.l.google.com.
+//' resolv_srv("_xmpp-server._tcp.gmail.com.", full=TRUE)
+//' ##                           fqdn priority weight port                         target                        owner class ttl
+//' ## 1 _xmpp-server._tcp.gmail.com.        5      0 5269      xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+//' ## 2 _xmpp-server._tcp.gmail.com.       20      0 5269 alt1.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+//' ## 3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+//' ## 4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+//' ## 5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 //[[Rcpp::export]]
-List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings=false) {
+SEXP resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, 
+                bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
   ldns_rdf *domain = NULL;
@@ -637,19 +837,19 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
   
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(List()) ; }
+  if (!domain) { return(DataFrame()) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(List()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(DataFrame()) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(List()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(DataFrame()) ; }
     
   }
   
@@ -660,7 +860,7 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    return(List()) ; 
+    return(DataFrame()) ; 
   }
 
   // get the SRV record(s)
@@ -670,7 +870,7 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
     ldns_rr_list_deep_free(srv);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No SRV records");} ;
-    return(List()) ;
+    return(DataFrame()) ;
   }
   
   // sorting makes the results seem less "random"
@@ -679,7 +879,14 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
   // get the total # of records and make an R char vector of same length
   int nr = ldns_rr_list_rr_count(srv) ;
   List results(nr) ;
-    
+  CharacterVector rds(nr) ;
+  CharacterVector weights(nr) ;
+  CharacterVector ports(nr) ;
+  CharacterVector targets(nr) ;
+  CharacterVector owners(nr) ;
+  NumericVector ttls(nr) ;
+  NumericVector dnsclass(nr) ;
+      
   // for each record, get the result as text and add to the vector
   for (int i=0; i<nr; i++) {
     // get record
@@ -695,11 +902,17 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
     port_str = ldns_rdf2str(port) ;
     target_str = ldns_rdf2str(target) ;
     
-    // add to vector
-    results[i] = List::create(Named("priority") = CharacterVector::create(answer_str),
-                              Named("weight") = CharacterVector::create(weight_str),
-                              Named("port") = CharacterVector::create(port_str),
-                              Named("target") = CharacterVector::create(target_str)) ;
+    rds[i] = answer_str;
+    weights[i] = weight_str;
+    ports[i] = port_str;
+    targets[i] = target_str;
+    
+    if (full) {
+      owners[i] = ldns_rdf2str(ldns_rr_owner(answer) );
+      ttls[i] = ldns_rr_ttl(answer);
+      dnsclass[i] = ldns_rr_get_class(answer);
+    }
+    
     // clean up
     free(answer_str) ;
     free(weight_str) ;
@@ -713,8 +926,23 @@ List resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings
   ldns_resolver_deep_free(res);
  
   // return the SRV answer vector
-  return(results);
-    
+
+  if (full) {
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("priority")=rds,
+                             Named("weight")=weights,
+                             Named("port")=ports,
+                             Named("target")=targets,
+                             Named("owner")=owners,
+                             Named("class")=dnsclass,
+                             Named("ttl")=ttls));
+  } else {  
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
+                             Named("priority")=rds,
+                             Named("weight")=weights,
+                             Named("port")=ports,
+                             Named("target")=targets));
+  }    
 }
 
 // host/IP \code{ldns_rdf} populated address

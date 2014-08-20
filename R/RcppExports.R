@@ -5,8 +5,8 @@
 #'
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
-#' @param full include full record response information in results (bool)
 #' @param showWarnings display R warning messages (bool)
+#' @param full include full record response information in results (bool)
 #' @return vector or data frame (if \code{full}==\code{TRUE}) of A records or \code{character(0)} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
@@ -36,7 +36,8 @@ resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, ful
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
-#' @return vector of TXT records or \code{character(0)} if none
+#' @param full include full record response information in results (bool)
+#' @return vector or data frame (if \code{full}==\code{TRUE}) of TXT records or \code{character(0)} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
@@ -64,8 +65,8 @@ resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, ful
 #' [2] "\"yandex-verification: 73acb90f6a9abd76\""                                                                                                                                                                
 #' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 #' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
-resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn, nameserver, showWarnings)
+resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS MX records for a given domain
@@ -73,24 +74,27 @@ resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE) {
 #' @param domain input character vector (domain name)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
-#' @return list of MX records (preference & exchange) or an empty list if none
+#' @param full include full record response information in results (bool)
+#' @return data frame of MX records (preference & exchange; +owner,class,ttl if \code{full}==\code{TRUE}) or an empty data frame if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
 #' @examples
 #' require(resolv)
 #' 
-#' unlist(resolv_mx("securitymetrics.org"))
-#'            preference               exchange 
-#'                   "0" "securitymetrics.org." 
-#'
-#' ## get the MX records for Google
-#' unlist(sapply(resolv_mx("rud.is"), "[", "exchange"), use.names=FALSE)
-#' [1] "aspmx.l.google.com."      "alt1.aspmx.l.google.com."
-#' [3] "alt2.aspmx.l.google.com." "aspmx2.googlemail.com."  
+#' resolv_mx("rudis.net", full=TRUE)
+#' ##        fqdn prefernece                 exchange      owner class ttl
+#' ## 1 rudis.net          1      aspmx.l.google.com. rudis.net.     1 599
+#' ## 2 rudis.net          5 alt1.aspmx.l.google.com. rudis.net.     1 599
+#' ## 3 rudis.net          5 alt2.aspmx.l.google.com. rudis.net.     1 599
+#' ## 4 rudis.net         10   aspmx2.googlemail.com. rudis.net.     1 599
+#' ## 5 rudis.net         10   aspmx3.googlemail.com. rudis.net.     1 599
+#' ## 6 rudis.net         10   aspmx4.googlemail.com. rudis.net.     1 599
+#' ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
+#' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
 #' 
-resolv_mx <- function(domain, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_mx', PACKAGE = 'resolv', domain, nameserver, showWarnings)
+resolv_mx <- function(domain, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_mx', PACKAGE = 'resolv', domain, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS CNAME records for a given FQDN
@@ -98,7 +102,8 @@ resolv_mx <- function(domain, nameserver = NA_character_, showWarnings = FALSE) 
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
-#' @return vector of CNAME records or \code{character(0)} if none
+#' @param full include full record response information in results (bool)
+#' @return vector or data frame (if \code{full}==\code{TRUE}) of CNAME records or \code{character(0)} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
@@ -107,8 +112,26 @@ resolv_mx <- function(domain, nameserver = NA_character_, showWarnings = FALSE) 
 #'
 #' resolv_cname("www.paypal.com")
 #' [1] "www.paypal.com.akadns.net."
-resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver, showWarnings)
+resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
+}
+
+#' Returns the DNS NS records for a given FQDN
+#'
+#' @param fqdn input character vector (FQDN)
+#' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
+#' @param showWarnings display R warning messages (bool)
+#' @param full include full record response information in results (bool)
+#' @return vector or data frame (if \code{full}==\code{TRUE}) of NS records or \code{character(0)} if none
+#' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
+#' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
+#' @export
+#' @examples
+#' require(resolv)
+#'
+#' resolv_ns("www.paypal.com")
+resolv_ns <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_ns', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS PTR records for a given IP address
@@ -116,7 +139,8 @@ resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE)
 #' @param IP address input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
-#' @return vector of PTR records or \code{character(0)} if none
+#' @param full include full record response information in results (bool)
+#' @return vector or data frame (if \code{full}==\code{TRUE}) of PTR records or \code{character(0)} if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
@@ -141,8 +165,8 @@ resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE)
 #' [131] "quicktimestreaming.net."    "publishing-research.com."  
 #' [133] "publishing-research.org."   "applefinalcutproworld.com."
 #' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
-resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_ptr', PACKAGE = 'resolv', ip, nameserver, showWarnings)
+resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_ptr', PACKAGE = 'resolv', ip, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS SRV records for a given FQDN
@@ -150,7 +174,8 @@ resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE) {
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
-#' @return list of SRV records (named fields) or an empty list if none
+#' @param full include full record response information in results (bool)
+#' @return data frame of SRV records (named fields; +owner,class,ttl if \code{full}==\code{TRUE}) or an empty list if none
 #' @seealso \url{http://www.nlnetlabs.nl/projects/ldns/}
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
@@ -159,14 +184,14 @@ resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE) {
 #' library(plyr)
 #' 
 #' ## google talk provides a good example for this
-#' ldply(resolv_srv("_xmpp-server._tcp.gmail.com."), unlist)
-#'  priority weight port                         target
-#'1        5      0 5269      xmpp-server.l.google.com.
-#'2       20      0 5269 alt1.xmpp-server.l.google.com.
-#'3       20      0 5269 alt2.xmpp-server.l.google.com.
-#'4       20      0 5269 alt3.xmpp-server.l.google.com.
-#'5       20      0 5269 alt4.xmpp-server.l.google.com.
-resolv_srv <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE) {
-    .Call('resolv_resolv_srv', PACKAGE = 'resolv', fqdn, nameserver, showWarnings)
+#' resolv_srv("_xmpp-server._tcp.gmail.com.", full=TRUE)
+#' ##                           fqdn priority weight port                         target                        owner class ttl
+#' ## 1 _xmpp-server._tcp.gmail.com.        5      0 5269      xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+#' ## 2 _xmpp-server._tcp.gmail.com.       20      0 5269 alt1.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+#' ## 3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+#' ## 4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+#' ## 5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+resolv_srv <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_srv', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
 
