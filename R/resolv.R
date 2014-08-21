@@ -6,7 +6,15 @@
 #' @param full include full record response information in results (bool)
 #' @return named vector or list
 #' @export
-A <- Vectorize(resolv_a, SIMPLIFY=FALSE)
+A <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(f) { data.frame(resolv_a(f, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(f) { resolv_a(f, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Vectorized version of \link{resolv_txt}
 #'
@@ -16,17 +24,33 @@ A <- Vectorize(resolv_a, SIMPLIFY=FALSE)
 #' @param full include full record response information in results (bool)
 #' @return named vector or list
 #' @export
-TXT <- Vectorize(resolv_txt, SIMPLIFY=FALSE)
+TXT <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(fqdn) { data.frame(resolv_txt(fqdn, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(fqdn) { resolv_txt(fqdn, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Vectorized version of \link{resolv_mx}
 #'
-#' @param domain input character vector (domain name)
+#' @param fqdn input character vector (domain name)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
 #' @param full include full record response information in results (bool)
 #' @return named vector or list 
 #' @export
-MX <- Vectorize(resolv_mx, SIMPLIFY=FALSE)
+MX <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(fqdn) { data.frame(resolv_mx(fqdn, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(fqdn) { resolv_mx(fqdn, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Vectorized version of \link{resolv_cname}
 #'
@@ -36,7 +60,15 @@ MX <- Vectorize(resolv_mx, SIMPLIFY=FALSE)
 #' @param full include full record response information in results (bool)
 #' @return list
 #' @export
-CNAME <- Vectorize(resolv_cname, SIMPLIFY=FALSE)
+CNAME <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(fqdn) { data.frame(resolv_cname(fqdn, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(fqdn) { resolv_cname(fqdn, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Vectorized version of \link{resolv_ns}
 #'
@@ -46,19 +78,35 @@ CNAME <- Vectorize(resolv_cname, SIMPLIFY=FALSE)
 #' @param full include full record response information in results (bool)
 #' @return list
 #' @export
-NS <- Vectorize(resolv_ns, SIMPLIFY=FALSE)
+NS <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(fqdn) { data.frame(resolv_ns(fqdn, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(fqdn) { resolv_ns(fqdn, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Vectorized version of \link{resolv_ptr}
 #'
-#' @param IP address input character vector (FQDN)
+#' @param ip address input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
 #' @param full include full record response information in results (bool)
 #' @return list
 #' @export
-PTR <- Vectorize(resolv_ptr, SIMPLIFY=FALSE)
+PTR <- function(ip, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(ip, function(ip) { data.frame(resolv_ptr(ip, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(ip, function(ip) { resolv_ptr(ip, nameserver, showWarnings, full) }))
+  }
+  
+}
 
-#' Vectorized version of \link{resolv_ptr}
+#' Vectorized version of \link{resolv_srv}
 #'
 #' @param fqdn input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
@@ -66,24 +114,39 @@ PTR <- Vectorize(resolv_ptr, SIMPLIFY=FALSE)
 #' @param full include full record response information in results (bool)
 #' @return list
 #' @export
-SRV <- Vectorize(resolv_srv, SIMPLIFY=FALSE)
-
+SRV <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
+  
+  if (full) {
+    return(ldply(fqdn, function(fqdn) { data.frame(resolv_srv(fqdn, nameserver, showWarnings, full)) }))
+  } else {
+    return(sapply(fqdn, function(fqdn) { resolv_srv(fqdn, nameserver, showWarnings, full) }))
+  }
+  
+}
 
 #' Return ASN info from Team CYNRU DNS lookup service
+#' 
+#' Pretty much provided as an example of data services. You
+#' should use the one in the \link{iptools} or \link{netintel} packages
+#' if you are serious about doing IP/ASN lookups.
 #' 
 #' @param ip address to lookup (character vector)
 #' @return data frame containing named ASN attributes
 #' @export
 ip2asn <- function(ip="216.90.108.31") {
 
-  orig <- ip
-  
-  ip <- paste(paste(rev(unlist(strsplit(ip, "\\."))), sep="", collapse="."), 
-              ".origin.asn.cymru.com", sep="", collapse="")
-  result <- resolv_txt(ip)
-  out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
-  
-  return(data.frame(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
+  ldply(ip, function(ip) {
+    
+    orig <- ip
+    
+    ip <- paste(paste(rev(unlist(strsplit(ip, "\\."))), sep="", collapse="."), 
+                ".origin.asn.cymru.com", sep="", collapse="")
+    result <- resolv_txt(ip)
+    out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
+    
+    return(data.frame(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
+    
+  })
   
 }
 
@@ -94,15 +157,19 @@ ip2asn <- function(ip="216.90.108.31") {
 #' @export
 asninfo <- function(asn="AS23028") {
   
-  orig <- asn
-  
-  # prefix with "AS" in case it isn't
-  asn <- gsub("^([0-9]+)", "AS\\1", asn)
-  asn <- paste(asn, ".asn.cymru.com", sep="", collapse="")
-  result <- resolv_txt(asn)
-  out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
-  
-  return(data.frame(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
+  ldply(asn, function(asn) {
+    
+    orig <- asn
+    
+    # prefix with "AS" in case it isn't
+    asn <- gsub("^([0-9]+)", "AS\\1", asn)
+    asn <- paste(asn, ".asn.cymru.com", sep="", collapse="")
+    result <- resolv_txt(asn)
+    out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
+    
+    return(data.frame(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
+    
+  })
   
 }
 

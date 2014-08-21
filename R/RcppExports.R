@@ -71,7 +71,7 @@ resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, f
 
 #' Returns the DNS MX records for a given domain
 #'
-#' @param domain input character vector (domain name)
+#' @param fqdn input character vector (domain name)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
 #' @param full include full record response information in results (bool)
@@ -93,8 +93,8 @@ resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, f
 #' ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
 #' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
 #' 
-resolv_mx <- function(domain, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
-    .Call('resolv_resolv_mx', PACKAGE = 'resolv', domain, nameserver, showWarnings, full)
+resolv_mx <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
+    .Call('resolv_resolv_mx', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
 
 #' Returns the DNS CNAME records for a given FQDN
@@ -136,7 +136,7 @@ resolv_ns <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, fu
 
 #' Returns the DNS PTR records for a given IP address
 #'
-#' @param IP address input character vector (FQDN)
+#' @param ip address input character vector (FQDN)
 #' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 #' @param showWarnings display R warning messages (bool)
 #' @param full include full record response information in results (bool)

@@ -42,17 +42,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // resolv_mx
-SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING, bool showWarnings = false, bool full = false);
-RcppExport SEXP resolv_resolv_mx(SEXP domainSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP, SEXP fullSEXP) {
+SEXP resolv_mx(std::string fqdn, SEXP nameserver = NA_STRING, bool showWarnings = false, bool full = false);
+RcppExport SEXP resolv_resolv_mx(SEXP fqdnSEXP, SEXP nameserverSEXP, SEXP showWarningsSEXP, SEXP fullSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< std::string >::type domain(domainSEXP );
+        Rcpp::traits::input_parameter< std::string >::type fqdn(fqdnSEXP );
         Rcpp::traits::input_parameter< SEXP >::type nameserver(nameserverSEXP );
         Rcpp::traits::input_parameter< bool >::type showWarnings(showWarningsSEXP );
         Rcpp::traits::input_parameter< bool >::type full(fullSEXP );
-        SEXP __result = resolv_mx(domain, nameserver, showWarnings, full);
+        SEXP __result = resolv_mx(fqdn, nameserver, showWarnings, full);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

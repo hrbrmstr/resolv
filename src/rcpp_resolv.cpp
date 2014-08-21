@@ -71,17 +71,23 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
   domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(CharacterVector(0)) ; }
   
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("address")=CharacterVector::create(NA_STRING),
+                                      Named("owner")=CharacterVector::create(NA_STRING),
+                                      Named("class")=NumericVector::create(NA_REAL),
+                                      Named("ttl")=NumericVector::create(NA_REAL));
+  
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   }
   
@@ -92,7 +98,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings) { Rf_warning("Could not process query") ; }; 
     ldns_resolver_deep_free(res);
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // get the A record(s)
@@ -102,7 +108,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(a);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No A records");};
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -201,9 +207,14 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
   
   // we only passed in one value
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
-; }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
   
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("txt")=CharacterVector::create(NA_STRING),
+                                      Named("owner")=CharacterVector::create(NA_STRING),
+                                      Named("class")=NumericVector::create(NA_REAL),
+                                      Named("ttl")=NumericVector::create(NA_REAL));
+
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
@@ -211,7 +222,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
     res = setresolver(ns.c_str()) ;
     if (res == NULL ) {
       ldns_rdf_deep_free(domain);
-      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+      if (full) return(empty); else return(CharacterVector(0)) ;
     }
     
   } else {
@@ -219,7 +230,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
     s = ldns_resolver_new_frm_file(&res, NULL);
     if (s != LDNS_STATUS_OK) { 
       ldns_rdf_deep_free(domain);
-      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+      if (full) return(empty); else return(CharacterVector(0)) ;
     }
     
   }
@@ -231,7 +242,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) {
     if(showWarnings){Rf_warning("Could not process query");};
     ldns_resolver_deep_free(res);
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // get the TXT record(s)
@@ -241,7 +252,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(txt);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No TXT records") ;};
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // sorting makes the results seem less "random"
@@ -293,7 +304,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
 
 //' Returns the DNS MX records for a given domain
 //'
-//' @param domain input character vector (domain name)
+//' @param fqdn input character vector (domain name)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
 //' @param full include full record response information in results (bool)
@@ -316,7 +327,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
 //' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
 //' 
 //[[Rcpp::export]]
-SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING, 
+SEXP resolv_mx(std::string fqdn, SEXP nameserver = NA_STRING, 
                bool showWarnings=false, bool full=false) {
   
   ldns_resolver *res = NULL;
@@ -329,20 +340,24 @@ SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING,
   char *answer_str, *pref_str ;
   
   // we only passed in one IP address
-  dname = ldns_dname_new_frm_str(domain.c_str());
+  dname = ldns_dname_new_frm_str(fqdn.c_str());
   if (!dname) { return(DataFrame()) ; }
+  
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("prefernece")=CharacterVector::create(NA_STRING),
+                                      Named("exchange")=CharacterVector::create(NA_STRING));
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(dname); return(DataFrame()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(dname); return(empty) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(dname); return(DataFrame()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(dname); return(empty) ; }
     
   }
   
@@ -353,7 +368,7 @@ SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    return(DataFrame()) ; 
+    return(empty) ; 
   }
 
   // get the MX record(s)
@@ -363,7 +378,7 @@ SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(mx);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No MX records") ;};
-    return(DataFrame()) ;
+    return(empty) ;
   }
   
   // sorting makes the results seem less "random"
@@ -407,14 +422,14 @@ SEXP resolv_mx(std::string domain, SEXP nameserver = NA_STRING,
   // return the MX answer data frame
 
   if (full) {
-    return(DataFrame::create(Named("fqdn")=CharacterVector::create(domain),
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
                              Named("prefernece")=prefs,
                              Named("exchange")=exch,
                              Named("owner")=owners,
                              Named("class")=dnsclass,
                              Named("ttl")=ttls));
   } else {  
-    return(DataFrame::create(Named("fqdn")=CharacterVector::create(domain),
+    return(DataFrame::create(Named("fqdn")=CharacterVector::create(fqdn),
                              Named("prefernece")=prefs,
                              Named("exchange")=exch));
   }
@@ -452,8 +467,13 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
     
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
- }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+  
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("cname")=CharacterVector::create(NA_STRING),
+                                      Named("owner")=CharacterVector::create(NA_STRING),
+                                      Named("class")=NumericVector::create(NA_REAL),
+                                      Named("ttl")=NumericVector::create(NA_REAL));
   
   std::string ns = as<std::string>(nameserver);
   
@@ -462,7 +482,7 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
     res = setresolver(ns.c_str()) ;
     if (res == NULL ) { 
       ldns_rdf_deep_free(domain);
-      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+      if (full) return(empty); else return(CharacterVector(0)) ;
     }
     
   } else {
@@ -470,7 +490,7 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
     s = ldns_resolver_new_frm_file(&res, NULL);
     if (s != LDNS_STATUS_OK) { 
       ldns_rdf_deep_free(domain); 
-      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+      if (full) return(empty); else return(CharacterVector(0)) ;
     }
     
   }
@@ -482,7 +502,7 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query") ;}; 
     ldns_resolver_deep_free(res);
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // get the CNAME record(s)
@@ -492,7 +512,7 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(cname);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No CNAME records") ;};
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -576,17 +596,23 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
   domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
   
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("ns")=CharacterVector::create(NA_STRING),
+                                      Named("owner")=CharacterVector::create(NA_STRING),
+                                      Named("class")=NumericVector::create(NA_REAL),
+                                      Named("ttl")=NumericVector::create(NA_REAL));
+
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   }
   
@@ -597,7 +623,7 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query") ;}; 
     ldns_resolver_deep_free(res);
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // get the NS record(s)
@@ -607,7 +633,7 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(nsl);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No NS records") ;};
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -678,7 +704,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 //' Returns the DNS PTR records for a given IP address
 //'
-//' @param IP address input character vector (FQDN)
+//' @param ip address input character vector (FQDN)
 //' @param nameserver the nameserver to send the request to (optional; uses standard resolver behavior if not specified)
 //' @param showWarnings display R warning messages (bool)
 //' @param full include full record response information in results (bool)
@@ -727,17 +753,23 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
   domain = ldns_dname_new_frm_str(rev.c_str());
   if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
   
+  DataFrame empty = DataFrame::create(Named("ip")=ip,
+                                      Named("ptr")=CharacterVector::create(NA_STRING),
+                                      Named("owner")=CharacterVector::create(NA_STRING),
+                                      Named("class")=NumericVector::create(NA_REAL),
+                                      Named("ttl")=NumericVector::create(NA_REAL));
+  
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(empty); else return(CharacterVector(0)) ; }
     
   }
   
@@ -748,7 +780,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
 
   // get the PTR record(s)
@@ -758,7 +790,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(ptr);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No PTR records");};
-    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    if (full) return(empty); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -852,17 +884,25 @@ SEXP resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING,
   domain = ldns_dname_new_frm_str(fqdn.c_str());
   if (!domain) { return(DataFrame()) ; }
   
+  DataFrame empty = DataFrame::create(Named("fqdn")=fqdn,
+                                      Named("priority")=CharacterVector::create(NA_STRING),
+                                      Named("weight")=CharacterVector::create(NA_STRING),
+                                      Named("port")=CharacterVector::create(NA_STRING),
+                                      Named("target")=CharacterVector::create(NA_STRING),
+                                      Named("srv")=CharacterVector::create(NA_STRING),
+                                      Named("srv")=CharacterVector::create(NA_STRING));
+
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(DataFrame()) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); return(empty) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(DataFrame()) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(empty) ; }
     
   }
   
@@ -873,7 +913,7 @@ SEXP resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    return(DataFrame()) ; 
+    return(empty) ; 
   }
 
   // get the SRV record(s)
@@ -883,7 +923,7 @@ SEXP resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(srv);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No SRV records");} ;
-    return(DataFrame()) ;
+    return(empty) ;
   }
   
   // sorting makes the results seem less "random"
