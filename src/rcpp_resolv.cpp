@@ -76,12 +76,12 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   }
   
@@ -92,7 +92,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings) { Rf_warning("Could not process query") ; }; 
     ldns_resolver_deep_free(res);
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // get the A record(s)
@@ -102,7 +102,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(a);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No A records");};
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -199,22 +199,28 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
   ldns_rr *answer;
   char *answer_str ;
   
-
-  // we only passed in one IP address
+  // we only passed in one value
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(CharacterVector(0)) ; }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (res == NULL ) {
+      ldns_rdf_deep_free(domain);
+      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { 
+      ldns_rdf_deep_free(domain);
+      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    }
     
   }
   
@@ -225,7 +231,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
   if (!p) {
     if(showWarnings){Rf_warning("Could not process query");};
     ldns_resolver_deep_free(res);
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // get the TXT record(s)
@@ -235,7 +241,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(txt);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No TXT records") ;};
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // sorting makes the results seem less "random"
@@ -443,22 +449,29 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
   ldns_rr *answer;
   ldns_rdf *rd ;
   char *answer_str ;
-  
+    
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(CharacterVector(0)) ; }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+ }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (res == NULL ) { 
+      ldns_rdf_deep_free(domain);
+      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { 
+      ldns_rdf_deep_free(domain); 
+      if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
+    }
     
   }
   
@@ -468,8 +481,8 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
   
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query") ;}; 
-    return(CharacterVector(0)) ; 
     ldns_resolver_deep_free(res);
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // get the CNAME record(s)
@@ -479,7 +492,7 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(cname);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No CNAME records") ;};
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -561,19 +574,19 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
   
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(fqdn.c_str());
-  if (!domain) { return(CharacterVector(0)) ; }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   }
   
@@ -583,8 +596,8 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
   
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query") ;}; 
-    return(CharacterVector(0)) ; 
     ldns_resolver_deep_free(res);
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // get the NS record(s)
@@ -594,7 +607,7 @@ SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(nsl);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No NS records") ;};
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"
@@ -712,19 +725,19 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
  
   // we only passed in one IP address
   domain = ldns_dname_new_frm_str(rev.c_str());
-  if (!domain) { return(CharacterVector(0)) ; }
+  if (!domain) { if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
   
   std::string ns = as<std::string>(nameserver);
   
   if (ns != "NA") {
     
     res = setresolver(ns.c_str()) ;
-    if (res == NULL ) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (res == NULL ) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   } else {
     
     s = ldns_resolver_new_frm_file(&res, NULL);
-    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); return(CharacterVector(0)) ; }
+    if (s != LDNS_STATUS_OK) { ldns_rdf_deep_free(domain); if (full) return(DataFrame(0)); else return(CharacterVector(0)) ; }
     
   }
   
@@ -735,7 +748,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
   if (!p) { 
     if(showWarnings){Rf_warning("Could not process query");}; 
     ldns_resolver_deep_free(res);
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
 
   // get the PTR record(s)
@@ -745,7 +758,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
     ldns_rr_list_deep_free(ptr);
     ldns_resolver_deep_free(res);
     if(showWarnings){Rf_warning("No PTR records");};
-    return(CharacterVector(0)) ;
+    if (full) return(DataFrame(0)); else return(CharacterVector(0)) ;
   }
   
   // sorting makes the results seem less "random"

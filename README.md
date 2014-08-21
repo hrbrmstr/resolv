@@ -16,6 +16,7 @@ Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pul
 
 ### News
 
+- Version update to `0.2.1` includes 2 memory fixes and better return types if no records are found
 - Version update to `0.2.0` includes ability to (optionally - set the `full` parameter to `TRUE`) return `class`, `ttl` & `owner` fields, includes `resolve_ns()` and `NS()` functions, plus changes return type for a few functions.
 - Version update to `0.1.2` after running `valgrind` and fixing some missing `free`'s (`#ty` to [@arj](http://twitter.com/arj)!)
 - Version update to `0.1.1` as I modified some of the roxygen documentation to better make this work out of the box. Any help getting it to work on Windows is greatly appreciated
@@ -26,17 +27,25 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
 
 ### Details
 
-    Package:     resolv
-    Type:        Package
-    Title:       Wrapper to ldns library for DNS calls from R
-    Version:     0.2.0
-    Date:        2014-08-15
-    Author:      Bob Rudis (@hrbrmstr)
-    Maintainer:  Bob Rudis <bob@rudis.net>
-    Description: Wrapper to ldns library for DNS calls from R
-    License:     GPL-2
-    Imports:     Rcpp (>= 0.11.1)
-    LinkingTo:   Rcpp
+    Package: resolv
+    Type: Package
+    Title: Wrapper to ldns library for DNS calls from R
+    Version: 0.2.1
+    Date: 2014-08-21
+    Author: Bob Rudis (@hrbrmstr)
+    Maintainer: Bob Rudids <bob@rudis.net>
+    Description: Wrapper to ldns library for DNS calls from R. It provides
+        vecorized & non-vectorized version of core DNS query functions and
+        allows for vector or data frame return values in most functions
+        (depending on the level of detail desired from the query). It's
+        significantly faster than issuing a system() call but does not
+        yet work under Windows.
+    URL: https://github.com/hrbrmstr/resolv
+    BugReports: https://github.com/hrbrmstr/resolv/issues
+    License: GPL-2
+    Imports:
+        Rcpp (>= 0.11.1)
+    LinkingTo: Rcpp
 
 Direct `ldns` wrappers:
 
@@ -58,7 +67,7 @@ and, their vectorized counterparts:
 - `PTR()`
 - `NS()`
 
-(TODO: to add "SOA", "NS", and other record retrieval functions as well as a `dig`-like one which returns the full response for a query)
+(TODO: to add "SOA" suppot)
 
 Ancillary/"fun"ctions
 
