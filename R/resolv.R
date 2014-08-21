@@ -72,7 +72,7 @@ SRV <- Vectorize(resolv_srv, SIMPLIFY=FALSE)
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
 #' @param ip address to lookup (character vector)
-#' @return list containing named ASN attributes
+#' @return data frame containing named ASN attributes
 #' @export
 ip2asn <- function(ip="216.90.108.31") {
 
@@ -83,14 +83,14 @@ ip2asn <- function(ip="216.90.108.31") {
   result <- resolv_txt(ip)
   out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
   
-  return(list(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
+  return(data.frame(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
   
 }
 
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
 #' @param asn number (with or without "AS" prefixed) to lookup (character vector)
-#' @return list containing named ASN attributes
+#' @return data frame containing named ASN attributes
 #' @export
 asninfo <- function(asn="AS23028") {
   
@@ -102,7 +102,7 @@ asninfo <- function(asn="AS23028") {
   result <- resolv_txt(asn)
   out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
   
-  return(list(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
+  return(data.frame(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
   
 }
 
