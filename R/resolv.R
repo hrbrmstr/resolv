@@ -135,7 +135,7 @@ SRV <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) 
 #' @export
 ip2asn <- function(ip="216.90.108.31") {
   
-  Reduce(rbind.fill, lapply(ip, function(ip) {
+  Reduce(rbind, lapply(ip, function(ip) {
     
     orig <- ip
     
@@ -160,7 +160,7 @@ ip2asn <- function(ip="216.90.108.31") {
 #' @export
 asninfo <- function(asn="AS23028") {
 
-  Reduce(rbind.fill, lapply(asn, function(asn) {
+  Reduce(rbind, lapply(asn, function(asn) {
     
     orig <- asn
     
