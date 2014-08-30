@@ -32,8 +32,8 @@ Provides functions to perform robust DNS lookups from R. Uses the `ldns` library
     Package: resolv
     Type: Package
     Title: Wrapper to ldns library for DNS calls from R
-    Version: 0.2.2
-    Date: 2014-08-21
+    Version: 0.2.3
+    Date: 2014-08-30
     Author: Bob Rudis (@hrbrmstr)
     Maintainer: Bob Rudids <bob@rudis.net>
     Description: Wrapper to ldns library for DNS calls from R. It provides
@@ -139,11 +139,11 @@ TXT(c("stackoverflow.com", "microsoft.com", "apple.com", "google.com"), full=TRU
     ## 4                                                                                                                                                                                                                               "v=spf1 ip4:17.0.0.0/8 ~all"
     ## 5                                                                                                                                                                              "v=spf1 include:_spf.google.com ip4:216.73.93.70/31 ip4:216.73.93.72/31 ~all"
     ##                owner class  ttl
-    ## 1 stackoverflow.com.     1  299
-    ## 2     microsoft.com.     1 1409
-    ## 3     microsoft.com.     1 1409
-    ## 4         apple.com.     1 3599
-    ## 5        google.com.     1 3491
+    ## 1 stackoverflow.com.     1  153
+    ## 2     microsoft.com.     1  578
+    ## 3     microsoft.com.     1  578
+    ## 4         apple.com.     1 2802
+    ## 5        google.com.     1 1904
 
 ``` {.r}
 ## parallel queries
@@ -184,7 +184,7 @@ head(output)
     ## [1] "208.80.154.224"
     ## 
     ## $twitter.com
-    ## [1] "199.16.156.70"  "199.16.156.102" "199.16.156.198" "199.16.156.230"
+    ## [1] "199.16.156.38"  "199.16.156.70"  "199.16.156.198" "199.16.156.230"
 
 ### References
 
