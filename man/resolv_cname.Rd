@@ -22,10 +22,12 @@ vector or data frame (if \code{full}==\code{TRUE}) of CNAME records or \code{cha
 Returns the DNS CNAME records for a given FQDN
 }
 \examples{
+\dontrun{
 require(resolv)
 
 resolv_cname("www.paypal.com")
 [1] "www.paypal.com.akadns.net."
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

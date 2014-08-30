@@ -16,6 +16,7 @@ Bug reports (esp from ppl with more C++/Rcpp experience), feature requests & pul
 
 ### News
 
+-   Version update to `0.2.3` removed `plyr` dependency; cleaned up tests; converted alexa CSV to rda file (can now do `data(alexa)`)
 -   Version update to `0.2.2` includes making the parameters fully consistent, making the vectorized functions work better and having even saner return values when there were errors or no records found
 -   Version update to `0.2.1` includes 2 memory fixes and better return types if no records are found
 -   Version update to `0.2.0` includes ability to (optionally - set the `full` parameter to `TRUE`) return `class`, `ttl` & `owner` fields, includes `resolve_ns()` and `NS()` functions, plus changes return type for a few functions.
@@ -94,7 +95,6 @@ require(resolv)
 ```
 
     ## Loading required package: resolv
-    ## Loading required package: plyr
 
 ``` {.r}
 library(plyr)
@@ -140,10 +140,10 @@ TXT(c("stackoverflow.com", "microsoft.com", "apple.com", "google.com"), full=TRU
     ## 5                                                                                                                                                                              "v=spf1 include:_spf.google.com ip4:216.73.93.70/31 ip4:216.73.93.72/31 ~all"
     ##                owner class  ttl
     ## 1 stackoverflow.com.     1  299
-    ## 2     microsoft.com.     1 3097
-    ## 3     microsoft.com.     1 3097
-    ## 4         apple.com.     1  942
-    ## 5        google.com.     1 3340
+    ## 2     microsoft.com.     1 1409
+    ## 3     microsoft.com.     1 1409
+    ## 4         apple.com.     1 3599
+    ## 5        google.com.     1 3491
 
 ``` {.r}
 ## parallel queries
@@ -157,20 +157,16 @@ library(doParallel)
 ``` {.r}
 library(data.table)
 
-alexa <- fread("data/top-1m.csv") # http://s3.amazonaws.com/alexa-static/top-1m.csv.zip
+data(alexa) # http://s3.amazonaws.com/alexa-static/top-1m.csv.zip
 
 n <- 100 # top 'n' to resolve (change it to 10000 on your own as that # makes the README builds churn too long)
 
 registerDoParallel(cores=6) # set to what you can on your system
-output <- foreach(i=1:n, .packages=c("Rcpp", "resolv")) %dopar% resolv_a(alexa[i,]$V2)
-names(output) <- alexa[1:n,]$V2
+output <- foreach(i=1:n, .packages=c("Rcpp", "resolv")) %dopar% resolv_a(alexa[i,]$domain)
+names(output) <- alexa[1:n,]$domain
 head(output)
 ```
 
-    ## $google.com
-    ##  [1] "74.125.226.64" "74.125.226.65" "74.125.226.66" "74.125.226.67" "74.125.226.68" "74.125.226.69" "74.125.226.70"
-    ##  [8] "74.125.226.71" "74.125.226.72" "74.125.226.73" "74.125.226.78"
-    ## 
     ## $facebook.com
     ## [1] "173.252.110.27"
     ## 
@@ -186,6 +182,9 @@ head(output)
     ## 
     ## $wikipedia.org
     ## [1] "208.80.154.224"
+    ## 
+    ## $twitter.com
+    ## [1] "199.16.156.70"  "199.16.156.102" "199.16.156.198" "199.16.156.230"
 
 ### References
 

@@ -22,6 +22,7 @@ data frame of MX records (preference & exchange; +owner,class,ttl if \code{full}
 Returns the DNS MX records for a given domain
 }
 \examples{
+\dontrun{
 require(resolv)
 
 resolv_mx("rudis.net", full=TRUE)
@@ -34,6 +35,7 @@ resolv_mx("rudis.net", full=TRUE)
 ## 6 rudis.net         10   aspmx4.googlemail.com. rudis.net.     1 599
 ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
 ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

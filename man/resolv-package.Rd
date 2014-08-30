@@ -10,7 +10,6 @@ Wrapper to ldns library for DNS calls from R
 \examples{
 \dontrun{
 require(resolv)
-library(plyr)
 
 ## google talk provides a good example for this
 resolv_srv("_xmpp-server._tcp.gmail.com.")

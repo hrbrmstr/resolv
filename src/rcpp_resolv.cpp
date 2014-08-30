@@ -39,6 +39,7 @@ using namespace Rcpp;
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //' 
 //' ## single address return
@@ -54,6 +55,7 @@ using namespace Rcpp;
 //' ## must put at least one DNS hack in
 //' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 //' [1] "0.25.0.0"
+//' }
 //[[Rcpp::export]]
 SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING, 
               bool showWarnings=false, bool full=false) {
@@ -169,6 +171,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //' 
 //' ## get the TXT record for Google
@@ -192,6 +195,7 @@ SEXP resolv_a(std::string fqdn, SEXP nameserver = NA_STRING,
 //' [2] "\"yandex-verification: 73acb90f6a9abd76\""                                                                                                                                                                
 //' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 //' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
+//' }
 //[[Rcpp::export]]
 SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING, 
                            bool showWarnings=false, bool full=false) {
@@ -313,6 +317,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //' 
 //' resolv_mx("rudis.net", full=TRUE)
@@ -325,7 +330,7 @@ SEXP resolv_txt(std::string fqdn, SEXP nameserver = NA_STRING,
 //' ## 6 rudis.net         10   aspmx4.googlemail.com. rudis.net.     1 599
 //' ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
 //' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
-//' 
+//' }
 //[[Rcpp::export]]
 SEXP resolv_mx(std::string fqdn, SEXP nameserver = NA_STRING, 
                bool showWarnings=false, bool full=false) {
@@ -447,10 +452,12 @@ SEXP resolv_mx(std::string fqdn, SEXP nameserver = NA_STRING,
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //'
 //' resolv_cname("www.paypal.com")
 //' [1] "www.paypal.com.akadns.net."
+//' }
 // [[Rcpp::export]]
 SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
                              bool showWarnings=false, bool full=false) {
@@ -575,9 +582,11 @@ SEXP resolv_cname(std::string fqdn, SEXP nameserver = NA_STRING,
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //'
 //' resolv_ns("www.paypal.com")
+//' }
 // [[Rcpp::export]]
 SEXP resolv_ns(std::string fqdn, SEXP nameserver = NA_STRING,
                              bool showWarnings=false, bool full=false) {
@@ -713,6 +722,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //'
 //' # where www.nasa.gov hosts
@@ -733,6 +743,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 //' [131] "quicktimestreaming.net."    "publishing-research.com."  
 //' [133] "publishing-research.org."   "applefinalcutproworld.com."
 //' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
+//' }
 //[[Rcpp::export]]
 SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING, 
                            bool showWarnings=false, bool full=false) {
@@ -849,6 +860,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
 //' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 //' @export
 //' @examples
+//' \dontrun{
 //' require(resolv)
 //' library(plyr)
 //' 
@@ -860,6 +872,7 @@ SEXP resolv_ptr(std::string ip, SEXP nameserver = NA_STRING,
 //' ## 3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 //' ## 4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 //' ## 5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+//' }
 //[[Rcpp::export]]
 SEXP resolv_srv(std::string fqdn, SEXP nameserver = NA_STRING, 
                 bool showWarnings=false, bool full=false) {

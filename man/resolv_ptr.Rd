@@ -22,6 +22,7 @@ vector or data frame (if \code{full}==\code{TRUE}) of PTR records or \code{chara
 Returns the DNS PTR records for a given IP address
 }
 \examples{
+\dontrun{
 require(resolv)
 
 # where www.nasa.gov hosts
@@ -42,6 +43,7 @@ resolv_ptr("17.149.160.49")
 [131] "quicktimestreaming.net."    "publishing-research.com."
 [133] "publishing-research.org."   "applefinalcutproworld.com."
 [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

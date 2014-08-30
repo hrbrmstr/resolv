@@ -22,9 +22,11 @@ vector or data frame (if \code{full}==\code{TRUE}) of NS records or \code{charac
 Returns the DNS NS records for a given FQDN
 }
 \examples{
+\dontrun{
 require(resolv)
 
 resolv_ns("www.paypal.com")
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

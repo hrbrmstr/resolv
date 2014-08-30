@@ -22,6 +22,7 @@ vector or data frame (if \code{full}==\code{TRUE}) of A records or \code{charact
 Returns the DNS A records for a given FQDN
 }
 \examples{
+\dontrun{
 require(resolv)
 
 ## single address return
@@ -37,6 +38,7 @@ resolv_a("google.com")
 ## must put at least one DNS hack in
 resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 [1] "0.25.0.0"
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

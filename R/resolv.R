@@ -9,7 +9,7 @@
 A <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(f) { data.frame(resolv_a(f, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_a, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(f) { resolv_a(f, nameserver, showWarnings, full) }))
   }
@@ -27,7 +27,7 @@ A <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
 TXT <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(fqdn) { data.frame(resolv_txt(fqdn, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_txt, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(fqdn) { resolv_txt(fqdn, nameserver, showWarnings, full) }))
   }
@@ -45,7 +45,7 @@ TXT <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) 
 MX <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(fqdn) { data.frame(resolv_mx(fqdn, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_mx, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(fqdn) { resolv_mx(fqdn, nameserver, showWarnings, full) }))
   }
@@ -63,7 +63,7 @@ MX <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
 CNAME <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(fqdn) { data.frame(resolv_cname(fqdn, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_cname, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(fqdn) { resolv_cname(fqdn, nameserver, showWarnings, full) }))
   }
@@ -81,7 +81,7 @@ CNAME <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE
 NS <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(fqdn) { data.frame(resolv_ns(fqdn, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_ns, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(fqdn) { resolv_ns(fqdn, nameserver, showWarnings, full) }))
   }
@@ -99,7 +99,7 @@ NS <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
 PTR <- function(ip, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(ip, function(ip) { data.frame(resolv_ptr(ip, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(ip, resolv_ptr, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(ip, function(ip) { resolv_ptr(ip, nameserver, showWarnings, full) }))
   }
@@ -117,7 +117,7 @@ PTR <- function(ip, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
 SRV <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) {
   
   if (full) {
-    return(ldply(fqdn, function(fqdn) { data.frame(resolv_srv(fqdn, nameserver, showWarnings, full)) }))
+    return(Reduce(rbind, lapply(fqdn, resolv_srv, nameserver=nameserver, showWarnings=showWarnings, full=full)))
   } else {
     return(sapply(fqdn, function(fqdn) { resolv_srv(fqdn, nameserver, showWarnings, full) }))
   }
@@ -127,26 +127,29 @@ SRV <- function(fqdn, nameserver=NA_character_, showWarnings=FALSE, full=FALSE) 
 #' Return ASN info from Team CYNRU DNS lookup service
 #' 
 #' Pretty much provided as an example of data services. You
-#' should use the one in the \link{iptools} or \link{netintel} packages
+#' should use the one in the \link[iptools]{iptools} or \link[netintel]{netintel} packages
 #' if you are serious about doing IP/ASN lookups.
 #' 
 #' @param ip address to lookup (character vector)
 #' @return data frame containing named ASN attributes
 #' @export
 ip2asn <- function(ip="216.90.108.31") {
-
-  ldply(ip, function(ip) {
+  
+  Reduce(rbind.fill, lapply(ip, function(ip) {
     
     orig <- ip
     
     ip <- paste(paste(rev(unlist(strsplit(ip, "\\."))), sep="", collapse="."), 
                 ".origin.asn.cymru.com", sep="", collapse="")
     result <- resolv_txt(ip)
+    if (length(result) == 0) {
+      return(data.frame(ip=orig, asn=NA, cidr=NA, cn=NA, registry=NA, regdate=NA))
+    }
     out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
     
     return(data.frame(ip=orig, asn=out[1], cidr=out[2], cn=out[3], registry=out[4], regdate=out[5]))
     
-  })
+  }))
   
 }
 
@@ -156,8 +159,8 @@ ip2asn <- function(ip="216.90.108.31") {
 #' @return data frame containing named ASN attributes
 #' @export
 asninfo <- function(asn="AS23028") {
-  
-  ldply(asn, function(asn) {
+
+  Reduce(rbind.fill, lapply(asn, function(asn) {
     
     orig <- asn
     
@@ -165,11 +168,14 @@ asninfo <- function(asn="AS23028") {
     asn <- gsub("^([0-9]+)", "AS\\1", asn)
     asn <- paste(asn, ".asn.cymru.com", sep="", collapse="")
     result <- resolv_txt(asn)
+    if (length(result) == 0) {
+      return(data.frame(asn=orig, cn=NA, registry=NA, regdate=NA, location=NA))
+    }
     out <- unlist(strsplit(gsub("\"", "", result), "\ *\\|\ *"))
     
     return(data.frame(asn=out[1], cn=out[2], registry=out[3], regdate=out[4], location=out[5]))
     
-  })
+  }))
   
 }
 
@@ -216,7 +222,6 @@ dnscalc <- function(a=0:99, b=0:99, op=c("add", "sub", "mul", "div")) {
 #' @examples
 #' \dontrun{
 #' require(resolv)
-#' library(plyr)
 #'
 #' ## google talk provides a good example for this
 #' resolv_srv("_xmpp-server._tcp.gmail.com.")
@@ -252,4 +257,22 @@ dnscalc <- function(a=0:99, b=0:99, op=c("add", "sub", "mul", "div")) {
 #' browseURL(gsub("\"", "", resolv_txt("google-public-dns-a.google.com")))
 #'
 #' }
+NULL
+
+#' @title Alexa Top 1 Million Sites
+#' @description Alexa Top 1 Million Sites
+#' \itemize{
+#'   \item \code{rank}. rank of the domain (int)
+#'   \item \code{domain}. the domain name (chr)
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @name alexa
+#' @seealso \itemize{
+#'   \item IANA - \url{http://aws.amazon.com/alexa-top-sites/}
+#' }
+#' @usage data(alexa)
+#' @note Last updated 2014-08-09
+#' @format A data frame with 1000024 rows and 2 variables
 NULL

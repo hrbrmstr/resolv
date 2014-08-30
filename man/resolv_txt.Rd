@@ -22,6 +22,7 @@ vector or data frame (if \code{full}==\code{TRUE}) of TXT records or \code{chara
 Returns the DNS TXT records for a given FQDN
 }
 \examples{
+\dontrun{
 require(resolv)
 
 ## get the TXT record for Google
@@ -45,6 +46,7 @@ resolv_txt("paypal.com")
 [2] "\\"yandex-verification: 73acb90f6a9abd76\\""
 [3] "\\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\\""
 [4] "\\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\\""
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

@@ -22,6 +22,7 @@ data frame of SRV records (named fields; +owner,class,ttl if \code{full}==\code{
 Returns the DNS SRV records for a given FQDN
 }
 \examples{
+\dontrun{
 require(resolv)
 library(plyr)
 
@@ -33,6 +34,7 @@ resolv_srv("_xmpp-server._tcp.gmail.com.", full=TRUE)
 ## 3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 ## 4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 ## 5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+}
 }
 \seealso{
 \url{http://www.nlnetlabs.nl/projects/ldns/}

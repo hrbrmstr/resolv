@@ -13,7 +13,7 @@ data frame containing named ASN attributes
 }
 \description{
 Pretty much provided as an example of data services. You
-should use the one in the \link{iptools} or \link{netintel} packages
+should use the one in the \link[iptools]{iptools} or \link[netintel]{netintel} packages
 if you are serious about doing IP/ASN lookups.
 }
 

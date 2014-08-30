@@ -12,6 +12,7 @@
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS A hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #' 
 #' ## single address return
@@ -27,6 +28,7 @@
 #' ## must put at least one DNS hack in
 #' resolv_a("10.15.add.calc.postel.org", "dns.postel.org")
 #' [1] "0.25.0.0"
+#' }
 resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_a', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
@@ -42,6 +44,7 @@ resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, ful
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS TXT hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #' 
 #' ## get the TXT record for Google
@@ -65,6 +68,7 @@ resolv_a <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, ful
 #' [2] "\"yandex-verification: 73acb90f6a9abd76\""                                                                                                                                                                
 #' [3] "\"google-site-verification=NrhK1Hj7KuCPua1OcvfacDawt46H9VjByS4IAw5vsFA\""                                                                                                                                 
 #' [4] "\"v=spf1 include:pp._spf.paypal.com include:3rdparty._spf.paypal.com include:3rdparty1._spf.paypal.com include:3rdparty2._spf.paypal.com include:3rdparty3._spf.paypal.com include:c._spf.ebay.com ~all\""
+#' }
 resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_txt', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
@@ -80,6 +84,7 @@ resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, f
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/} (cool DNS MX hacks vla \url{https://twitter.com/habbie/status/460067198586081280})
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #' 
 #' resolv_mx("rudis.net", full=TRUE)
@@ -92,7 +97,7 @@ resolv_txt <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, f
 #' ## 6 rudis.net         10   aspmx4.googlemail.com. rudis.net.     1 599
 #' ## 7 rudis.net         10   aspmx5.googlemail.com. rudis.net.     1 599
 #' ## 8 rudis.net        100  mx-caprica.easydns.com. rudis.net.     1 599
-#' 
+#' }
 resolv_mx <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_mx', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
@@ -108,10 +113,12 @@ resolv_mx <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, fu
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #'
 #' resolv_cname("www.paypal.com")
 #' [1] "www.paypal.com.akadns.net."
+#' }
 resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_cname', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
@@ -127,9 +134,11 @@ resolv_cname <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE,
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #'
 #' resolv_ns("www.paypal.com")
+#' }
 resolv_ns <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_ns', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
@@ -145,6 +154,7 @@ resolv_ns <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, fu
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #'
 #' # where www.nasa.gov hosts
@@ -165,6 +175,7 @@ resolv_ns <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, fu
 #' [131] "quicktimestreaming.net."    "publishing-research.com."  
 #' [133] "publishing-research.org."   "applefinalcutproworld.com."
 #' [135] "applefinalcutproworld.net." "applefinalcutproworld.org."
+#' }
 resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_ptr', PACKAGE = 'resolv', ip, nameserver, showWarnings, full)
 }
@@ -180,6 +191,7 @@ resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE, ful
 #' @seealso \url{http://www.cambus.net/interesting-dns-hacks/}
 #' @export
 #' @examples
+#' \dontrun{
 #' require(resolv)
 #' library(plyr)
 #' 
@@ -191,6 +203,7 @@ resolv_ptr <- function(ip, nameserver = NA_character_, showWarnings = FALSE, ful
 #' ## 3 _xmpp-server._tcp.gmail.com.       20      0 5269 alt2.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 #' ## 4 _xmpp-server._tcp.gmail.com.       20      0 5269 alt3.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
 #' ## 5 _xmpp-server._tcp.gmail.com.       20      0 5269 alt4.xmpp-server.l.google.com. _xmpp-server._tcp.gmail.com.     1 804
+#' }
 resolv_srv <- function(fqdn, nameserver = NA_character_, showWarnings = FALSE, full = FALSE) {
     .Call('resolv_resolv_srv', PACKAGE = 'resolv', fqdn, nameserver, showWarnings, full)
 }
