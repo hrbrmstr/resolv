@@ -3,7 +3,7 @@
 \name{alexa}
 \alias{alexa}
 \title{Alexa Top 1 Million Sites}
-\format{A data frame with 1000024 rows and 2 variables}
+\format{A data frame with 1,000,024 rows and 2 variables}
 \usage{
 data(alexa)
 }

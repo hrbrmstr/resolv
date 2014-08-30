@@ -274,5 +274,5 @@ NULL
 #' }
 #' @usage data(alexa)
 #' @note Last updated 2014-08-09
-#' @format A data frame with 1000024 rows and 2 variables
+#' @format A data frame with 1,000,024 rows and 2 variables
 NULL
