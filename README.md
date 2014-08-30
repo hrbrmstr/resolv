@@ -83,7 +83,7 @@ These show off some of what you can do with DNS
 ### Installation
 
 ``` {.r}
-devtools::install_git("https://gitlab.dds.ec/bob.rudis/iptools.git")
+devtools::install_github("hrbrmstr/resolv")
 ```
 
 > Don't forget the need to `brew install ldns` or your favorite linux pkg mgr equivalent, first.
