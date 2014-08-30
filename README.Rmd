@@ -143,3 +143,17 @@ head(output)
 
 - http://www.nlnetlabs.nl/projects/ldns/
 - http://dds.ec/blog/posts/2014/Apr/making-better-dns-txt-record-lookups-with-rcpp/
+
+
+### Test Results
+
+```{r}
+library(resolv)
+library(testthat)
+
+date()
+
+test_dir("tests/")
+
+```
+

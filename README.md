@@ -139,11 +139,11 @@ TXT(c("stackoverflow.com", "microsoft.com", "apple.com", "google.com"), full=TRU
     ## 4                                                                                                                                                                                                                               "v=spf1 ip4:17.0.0.0/8 ~all"
     ## 5                                                                                                                                                                              "v=spf1 include:_spf.google.com ip4:216.73.93.70/31 ip4:216.73.93.72/31 ~all"
     ##                owner class  ttl
-    ## 1 stackoverflow.com.     1  153
-    ## 2     microsoft.com.     1  578
-    ## 3     microsoft.com.     1  578
-    ## 4         apple.com.     1 2802
-    ## 5        google.com.     1 1904
+    ## 1 stackoverflow.com.     1  299
+    ## 2     microsoft.com.     1  311
+    ## 3     microsoft.com.     1  311
+    ## 4         apple.com.     1 3177
+    ## 5        google.com.     1 3030
 
 ``` {.r}
 ## parallel queries
@@ -184,7 +184,7 @@ head(output)
     ## [1] "208.80.154.224"
     ## 
     ## $twitter.com
-    ## [1] "199.16.156.38"  "199.16.156.70"  "199.16.156.198" "199.16.156.230"
+    ## [1] "199.16.156.6"   "199.16.156.38"  "199.16.156.198" "199.16.156.230"
 
 ### References
 
@@ -194,3 +194,20 @@ head(output)
 
 -   <http://www.nlnetlabs.nl/projects/ldns/>
 -   <http://dds.ec/blog/posts/2014/Apr/making-better-dns-txt-record-lookups-with-rcpp/>
+
+### Test Results
+
+``` {.r}
+library(resolv)
+library(testthat)
+
+date()
+```
+
+    ## [1] "Sat Aug 30 15:02:48 2014"
+
+``` {.r}
+test_dir("tests/")
+```
+
+    ## resolv core : ......
