@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/5630/hrbrmstr/resolv.png)](http://dx.doi.org/10.5281/zenodo.11343)
+[![DOI](https://zenodo.org/badge/5630/hrbrmstr/resolv.png)](https://doi.org/10.5281/zenodo.11343)
 
 resolv
 ======
